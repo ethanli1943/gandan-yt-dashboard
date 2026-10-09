@@ -209,6 +209,9 @@
   .skel { height: 14px; border-radius: 8px; background: linear-gradient(90deg, var(--grid), var(--surface), var(--grid)); background-size: 200% 100%; animation: shimmer 1.4s infinite; margin: 10px 0; }
   @keyframes shimmer { to { background-position: -200% 0; } }
   footer { margin-top: 26px; font-size: 12.5px; color: var(--muted); line-height: 1.8; }
+  .stale { display: flex; gap: 10px; align-items: flex-start; padding: 12px 16px; margin-bottom: 16px; border-radius: 14px;
+            background: rgba(194,52,52,.10); color: var(--bad); box-shadow: 0 0 0 1px rgba(194,52,52,.25); font-size: 13.5px; line-height: 1.6; }
+  .stale b { font-weight: 700; }
   .err { padding: 18px; border-radius: 14px; background: rgba(194,52,52,.08); color: var(--bad); }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
@@ -306,11 +309,23 @@
   }
 
   /* ---- 主畫面 ---- */
+  /* ---- 資料過期警示（2026-10-09 Ethan 選：只加儀表板紅條，不寄信） ---- */
+  function staleBanner(d) {
+    var lag = 3, today = new Date(), t = String(d.through || '').split('-');
+    if (t.length !== 3) return '';
+    var through = new Date(+t[0], +t[1] - 1, +t[2]);
+    var late = Math.floor((today - through) / 86400000) - lag;          // 比正常（落後 3 天）多晚了幾天
+    var failed = String(d.lastStatus || '').indexOf('失敗') === 0;
+    if (late <= 2 && !failed) return '';
+    var msg = late > 2 ? '資料已經 <b>' + late + ' 天</b>沒有更新（最後資料到 ' + esc(d.through) + '）。' : '';
+    if (failed) msg += '最近一次自動更新<b>失敗</b>（' + esc(d.lastRun || '') + '）。';
+    return '<div class="stale" role="alert"><span aria-hidden="true">⚠</span><div>' + msg + '畫面上的數字可能是舊的，請告訴 Ethan 到試算表「執行紀錄」查原因。</div></div>';
+  }
   function render(d) {
     window.__DATA__ = d;
     var k = d.kpi;
     $('#through').textContent = '資料到 ' + d.through + '（YouTube 約落後 3 天）';
-    var html = '';
+    var html = staleBanner(d);
     html += '<div class="grid g-hero">';
     html += '<div class="card hero"><div class="label">近 7 天自然觀看</div><div class="value" data-count="' + k.organic7 + '">0</div><div class="delta">' + deltaHtml(k.organic7, k.organic7Prev, true) + '</div></div>';
     html += '<div class="card"><div class="label">近 7 天廣告觀看</div><div class="value" data-count="' + k.ads7 + '">0</div><div class="delta">' + deltaHtml(k.ads7, k.ads7Prev, null) + '</div></div>';

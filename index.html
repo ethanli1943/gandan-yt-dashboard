@@ -156,6 +156,18 @@
   a.vlink .ext { display: inline-block; margin-left: 4px; font-size: .85em; opacity: 0; transform: translate(-2px, 2px); transition: opacity .2s ease, transform .2s ease; }
   a.vlink:hover .ext, a.vlink:focus-visible .ext { opacity: .8; transform: none; }
   @media (prefers-reduced-motion: reduce) { a.vlink, a.vlink .ext { transition: none; } }
+  .tag.topic { background: var(--organic-wash); box-shadow: none; color: var(--ink); margin-left: 4px; }
+  .rating { display: inline-block; min-width: 26px; text-align: center; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; }
+  .rating.r-strong { background: rgba(11,122,11,.10); color: var(--good); }
+  .rating.r-mid { background: var(--surface); color: var(--ink-2); box-shadow: 0 0 0 1px var(--ring); }
+  .rating.r-weak { background: rgba(194,52,52,.10); color: var(--bad); }
+  .verdict { font-size: 12.5px; color: var(--ink-2); line-height: 1.5; min-width: 150px; }
+  .sub2 { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .med-track { position: relative; width: 120px; height: 8px; background: var(--grid); border-radius: 99px; display: inline-block; vertical-align: middle; margin-left: 8px; }
+  .med-track .fill { border-radius: 99px; }
+  .med-track .one { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink-2); opacity: .5; }
+  .summary-chip { display: inline-flex; gap: 6px; align-items: baseline; font-size: 13px; color: var(--ink-2); }
+  .summary-chip b { font-size: 22px; color: var(--ink); }
   .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 99px; background: var(--surface); box-shadow: 0 0 0 1px var(--ring); color: var(--ink-2); margin-top: 3px; }
   .mini { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
   .mini .track { width: 90px; height: 6px; background: var(--grid); border-radius: 99px; }
@@ -282,6 +294,8 @@
       '<div class="keys"><span class="key" style="--c:var(--organic)">自然 ' + oPct.toFixed(0) + '%</span><span class="key" style="--c:var(--ads)">廣告 ' + aPct.toFixed(0) + '%</span></div></div>';
     html += '</div>';
 
+    html += '<div class="section card"><div class="chart-head"><div><h2>新片檢查</h2><p class="hint">近 60 天上架的長片，照拍片前審片表的拍後檢討門檻亮燈。前兩天看既有觀眾買不買單；第 2→7 天成長看有沒有擴散到新觀眾；首 28 天看最後表現。都用自然觀看，資料落後約 3 天。曝光數與縮圖點閱率還沒接，要到 YouTube 工作室看。</p></div></div>' +
+      '<div class="scroll" id="launch"></div></div>';
     html += '<div class="section card"><div class="chart-head"><div><h2>每天觀看：自然 vs 廣告</h2><p class="hint">近 35 天。滑過圖表看每天的數字；廣告觀看來自 YouTube 流量來源「YouTube 廣告」。</p></div>' +
       '<div class="legend"><span style="--c:var(--organic)">自然觀看</span><span style="--c:var(--ads)">廣告觀看</span></div></div>' +
       '<div class="line-wrap" id="line"></div><div class="tip" id="tip"></div>' +
@@ -298,12 +312,18 @@
       '<div class="scroll" id="rank"></div></div>';
 
     html += '<div class="section card"><h2>投放中的影片：自然 vs 廣告</h2><p class="hint">近 28 天有廣告觀看的影片。藍色是自然、橘色是廣告；廣告多但自然少，代表投放還沒帶動演算法推薦。</p><div class="bars" id="paid"></div></div>';
+    html += '<div class="section card"><div class="chart-head"><div><h2>市場題材地圖</h2><p class="hint" id="topicHint"></p></div>' +
+      '<div class="seg" id="topicSeg" aria-label="分類"><button class="on" data-k="topics">題材</button><button data-k="forms">形式</button></div></div>' +
+      '<div class="scroll" id="topicMap"></div></div>';
+    html += '<div class="section card"><div class="chart-head"><div><h2>審片 vs 實際</h2><p class="hint">拍前在試算表「審片紀錄」分頁打分數（左邊欄位），程式每天算出判定，上片後自動接實際表現。實際優先用「首 28 天自然 ÷ 同類中位」，還沒滿 28 天就用手填的倍數；≥1 算達標。每季用這張表檢討審片門檻準不準。</p></div>' +
+      '<div class="summary-chip" id="reviewSummary"></div></div><div class="scroll" id="reviews"></div></div>';
     $('#app').innerHTML = html;
 
     document.querySelectorAll('[data-count]').forEach(function (el) { countUp(el, +el.getAttribute('data-count')); });
     document.querySelectorAll('[data-pct]').forEach(function (el) { countUp(el, +el.getAttribute('data-pct'), { pct: true }); });
     var st = { t: '全部', w: '28' };
     drawLine(d); drawDayTable(d); drawSources(d); drawCands(d, st.t); drawRank(d, st.t, st.w); drawPaid(d);
+    drawLaunch(d); drawTopics(d, 'topics'); drawReviews(d);
     function segClick(sel, attr, after) {
       $(sel).addEventListener('click', function (e) {
         var b = e.target.closest('button'); if (!b) return;
@@ -313,6 +333,7 @@
     }
     segClick('#seg', 'data-t', function (t) { st.t = t; drawRank(d, st.t, st.w); drawCands(d, st.t); });
     segClick('#winSeg', 'data-w', function (w) { st.w = w; drawRank(d, st.t, st.w); });
+    segClick('#topicSeg', 'data-k', function (k) { drawTopics(d, k); });
     reveal(); grow('.meter i');
     $('#foot').innerHTML = '口徑說明：自然觀看＝總觀看 − YouTube 廣告來源觀看（YouTube Analytics）。Jinbo 週報的廣告「觀看次數」是 Google Ads 口徑，兩者算法不同，不能直接相比。<br>' +
       '資料每天 06:00 自動更新' + (d.lastRun ? '，最後執行 ' + esc(d.lastRun) + '（' + esc(d.lastStatus) + '）' : '') + '。來源：甘丹數據中心試算表。';
@@ -408,7 +429,7 @@
     $('#rankHint').textContent = '近 ' + w + ' 天自然觀看前 8 名。「同類比值」＝近 ' + w + ' 天自然觀看 ÷ 同類型影片的中位數，≥1.5 綠、≤0.5 紅。' +
       '發布不到 ' + w + ' 天的新片天數較少，新舊片要比請看「首 7 天自然」。';
     var rows = list.map(function (v, i) {
-      return '<tr><td style="color:var(--muted);width:28px">' + (i + 1) + '</td><td>' + vlink(v, 'ttl') + '<span class="tag">' + esc(v.type) + '</span></td>' +
+      return '<tr><td style="color:var(--muted);width:28px">' + (i + 1) + '</td><td>' + vlink(v, 'ttl') + '<span class="tag">' + esc(v.type) + '</span>' + (v.tag ? '<span class="tag topic">' + esc(v.tag) + '</span>' : '') + '</td>' +
         '<td class="num"><div class="mini"><span>' + fmt(v.organic) + '</span><span class="track"><span class="fill" data-w="' + (v.organic / max * 100) + '%"></span></span></div></td>' +
         '<td class="num">' + fmt(v.ads) + '</td><td class="num">' + ratioPill(v.ratio) + '</td>' +
         '<td class="num">' + (v.avgPct == null ? '—' : v.avgPct.toFixed(1) + '%') + '</td><td class="num">' + fmt(v.first7) + '</td></tr>';
@@ -416,6 +437,70 @@
     $('#rank').innerHTML = list.length ? '<table><thead><tr><th></th><th>影片</th><th class="num">近 ' + w + ' 天自然</th><th class="num">近 ' + w + ' 天廣告</th><th class="num">同類比值</th><th class="num">平均觀看（28 天）</th><th class="num">首 7 天自然</th></tr></thead><tbody>' + rows + '</tbody></table>'
       : '<div class="empty">這個類型目前沒有資料。（排行只算有逐日資料的影片）</div>';
     grow('#rank .fill');
+  }
+  /* ---- ① 新片檢查 ---- */
+  function light(x, lo, hi, digits, suffix) {
+    // x < lo 紅、x >= hi 綠、其他黃；沒資料顯示「—」
+    if (x == null) return '<span class="ratio mid">—</span>';
+    var cls = x < lo ? 'lo' : x >= hi ? 'hi' : 'mid';
+    return '<span class="ratio ' + cls + '">' + x.toFixed(digits == null ? 2 : digits) + (suffix || '') + '</span>';
+  }
+  function launchVerdict(v) {
+    if (v.ratio28 != null) return v.ratio28 >= 1.5 ? '28 天表現明顯比同類好' : v.ratio28 <= 0.5 ? '28 天表現明顯比同類差，檢討題材或內容有沒有兌現' : '28 天表現跟同類差不多';
+    if (v.growth7 != null) return v.growth7 > 2.5 ? '正在擴散到新觀眾，可以考慮投流' : v.growth7 < 1.5 ? '只有訂閱者在看，沒有擴散' : '有一點擴散，再觀察到 28 天';
+    if (v.ratio2 != null) return v.ratio2 < 0.5 ? '既有觀眾不買單，檢查題材與封面' : v.ratio2 >= 1 ? '開局比同期好，等第 7 天看擴散' : '開局普通，等第 7 天看擴散';
+    return '資料還沒進來（落後約 3 天）';
+  }
+  function drawLaunch(d) {
+    var list = d.launch || [];
+    $('#launch').innerHTML = list.length ? '<table><thead><tr><th>影片</th><th class="num">前兩天自然</th><th class="num">÷同期中位</th><th class="num">第 2→7 天成長</th><th class="num">首 28 天÷同類</th><th>判讀</th></tr></thead><tbody>' +
+      list.map(function (v) {
+        return '<tr><td>' + vlink(v, 'ttl') + '<div class="sub2">' + esc(v.pub) + ' 上架・第 ' + v.age + ' 天' + (v.tag ? '<span class="tag topic">' + esc(v.tag) + '</span>' : '') + '</div></td>' +
+          '<td class="num">' + fmt(v.first2) + '</td><td class="num">' + light(v.ratio2, 0.5, 1) + '</td><td class="num">' + light(v.growth7, 1.5, 2.5001, 1, ' 倍') + '</td>' +
+          '<td class="num">' + light(v.ratio28, 0.5001, 1.5) + '</td><td class="verdict">' + esc(launchVerdict(v)) + '</td></tr>';
+      }).join('') + '</tbody></table>' : '<div class="empty">近 60 天沒有上架長片。</div>';
+  }
+  /* ---- ③ 市場題材地圖 ---- */
+  var RATING_CLS = { '強': 'r-strong', '中': 'r-mid', '弱': 'r-weak' };
+  function drawTopics(d, k) {
+    var t = d.topics || {}, list = t[k] || [];
+    $('#topicHint').textContent = (t.note || '還沒匯入選題研究資料（在 Apps Script 執行 seedTopicData）') +
+      '。倍數＝影片觀看 ÷ 該頻道長片中位數，1 代表普通，灰線就是 1；爆片＝倍數 ≥2。評級照拍片前審片表附表。';
+    if (!list.length) { $('#topicMap').innerHTML = '<div class="empty">還沒有資料。</div>'; return; }
+    var max = Math.max.apply(null, list.map(function (x) { return Math.max(x.median || 0, x.gandanMedian || 0); }).concat([1.5]));
+    var head = '<table><thead><tr><th>' + (k === 'forms' ? '形式' : '題材') + '</th>' + (k === 'topics' ? '<th>評級</th>' : '') +
+      '<th class="num">市場倍數中位</th><th class="num">爆片率</th><th class="num">爆過的頻道</th><th class="num">甘丹倍數中位</th></tr></thead><tbody>';
+    var rows = list.map(function (x) {
+      var rating = k === 'topics' ? '<td>' + (x.rating ? '<span class="rating ' + (RATING_CLS[x.rating] || 'r-mid') + '">' + esc(x.rating) + '</span>' : '') + '</td>' : '';
+      var med = x.median == null ? '—' : x.median.toFixed(2);
+      var bar = '<span class="med-track"><span class="fill" data-w="' + ((x.median || 0) / max * 100) + '%"></span><span class="one" style="left:' + (1 / max * 100) + '%"></span></span>';
+      var gd = x.gandanMedian == null ? '<span style="color:var(--muted)">沒拍過</span>' : x.gandanMedian.toFixed(2) + '<div class="sub2">' + x.gandanN + ' 支</div>';
+      return '<tr><td><b style="font-weight:500">' + esc(x.name) + '</b><div class="sub2">市場 ' + fmt(x.n) + ' 支</div></td>' + rating +
+        '<td class="num">' + med + bar + '</td><td class="num">' + (x.burstRate == null ? '—' : x.burstRate + '%') + '</td>' +
+        '<td class="num">' + fmt(x.burstChannels) + '</td><td class="num">' + gd + '</td></tr>';
+    }).join('');
+    $('#topicMap').innerHTML = head + rows + '</tbody></table>';
+    grow('#topicMap .fill');
+  }
+  /* ---- ④ 審片 vs 實際 ---- */
+  function resultPill(r) {
+    if (!r) return '<span class="ratio mid">未打分</span>';
+    var cls = r === '對' ? 'hi' : r.indexOf('錯') === 0 ? 'lo' : 'mid';
+    return '<span class="ratio ' + cls + '">' + esc(r) + '</span>';
+  }
+  function drawReviews(d) {
+    var rv = d.reviews || { list: [], summary: { judged: 0, correct: 0 } }, list = rv.list || [];
+    $('#reviewSummary').innerHTML = rv.summary && rv.summary.judged ? '已驗證 <b>' + rv.summary.judged + '</b> 支，判斷對 <b>' + rv.summary.correct + '</b> 支' : '還沒有可驗證的影片';
+    if (!list.length) { $('#reviews').innerHTML = '<div class="empty">「審片紀錄」分頁還沒有資料。</div>'; return; }
+    var head = '<table><thead><tr><th>影片</th><th class="num">A 流量</th><th class="num">B TA</th><th>拍前判定</th><th class="num">實際</th><th>結果</th></tr></thead><tbody>';
+    var rows = list.map(function (x) {
+      var ttl = x.id ? vlink({ id: x.id, title: x.title }, 'ttl') : '<span class="ttl">' + esc(x.title) + '</span>';
+      var act = x.actual == null ? '—' : x.actual.toFixed(2) + '<div class="sub2">' + esc(x.actualSrc) + '</div>';
+      return '<tr><td>' + ttl + '<span class="tag">' + esc(x.kind || '企劃') + '</span></td>' +
+        '<td class="num">' + (x.a == null ? '—' : x.a.toFixed(1)) + '</td><td class="num">' + (x.b == null ? '—' : x.b.toFixed(1)) + '</td>' +
+        '<td>' + esc(x.verdict || '—') + '</td><td class="num">' + act + '</td><td>' + resultPill(x.result) + '</td></tr>';
+    }).join('');
+    $('#reviews').innerHTML = head + rows + '</tbody></table>';
   }
   function drawPaid(d) {
     var p = d.paid, max = p.length ? Math.max.apply(null, p.map(function (v) { return v.ads28 + v.organic28; })) : 1;

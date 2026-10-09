@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>甘丹數據中心｜YouTube</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ---------- 色彩與字型（甘丹：北歐極簡、溫暖米白） ---------- */
+  :root {
+    color-scheme: light;
+    --page: #f4f1ec;
+    --surface: #fbfaf7;
+    --card: #fffefc;
+    --ink: #1f1d1a;
+    --ink-2: #5b5750;
+    --muted: #8d877e;
+    --grid: #e6e2da;
+    --base: #c9c3b8;
+    --ring: rgba(31, 29, 26, 0.08);
+    --shadow: 0 1px 2px rgba(31, 29, 26, 0.04), 0 8px 24px rgba(31, 29, 26, 0.06);
+    --organic: #2a78d6;      /* 自然＝categorical 1（已驗證） */
+    --organic-wash: rgba(42, 120, 214, 0.10);
+    --ads: #eb6834;          /* 廣告＝categorical 2（已驗證） */
+    --good: #0b7a0b;
+    --bad: #c23434;
+    --accent: #6f8a6a;       /* 鼠尾草綠：只當裝飾，不當資料色 */
+    --radius: 18px;
+    --font: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #121110; --surface: #1c1b19; --card: #201f1c; --ink: #f6f3ee; --ink-2: #cfc9bf; --muted: #9a948a;
+      --grid: #2e2c29; --base: #3d3a36; --ring: rgba(255,255,255,0.08); --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+      --organic: #3987e5; --organic-wash: rgba(57,135,229,0.14); --ads: #d95926; --good: #3cc43c; --bad: #ef7777; --accent: #9db398;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #121110; --surface: #1c1b19; --card: #201f1c; --ink: #f6f3ee; --ink-2: #cfc9bf; --muted: #9a948a;
+    --grid: #2e2c29; --base: #3d3a36; --ring: rgba(255,255,255,0.08); --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    --organic: #3987e5; --organic-wash: rgba(57,135,229,0.14); --ads: #d95926; --good: #3cc43c; --bad: #ef7777; --accent: #9db398;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100vh; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 56px; }
+
+  /* ---------- 頁首 ---------- */
+  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .logo { width: 44px; height: 44px; border-radius: 14px; background: var(--ink); color: var(--card); display: grid; place-items: center; font-weight: 700; font-size: 20px; letter-spacing: .02em; }
+  h1 { font-size: 22px; font-weight: 700; margin: 0; letter-spacing: .02em; }
+  .sub { color: var(--muted); font-size: 13px; margin-top: 3px; }
+  .chips { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; background: var(--card); box-shadow: 0 0 0 1px var(--ring); font-size: 13px; color: var(--ink-2); }
+  .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--good); position: relative; }
+  .pulse::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid var(--good); opacity: .5; animation: pulse 2.2s ease-out infinite; }
+  @keyframes pulse { 0% { transform: scale(.5); opacity: .6; } 100% { transform: scale(1.6); opacity: 0; } }
+  button.chip { cursor: pointer; border: 0; font-family: inherit; }
+  button.chip:hover { color: var(--ink); }
+
+  /* ---------- 卡片與版面 ---------- */
+  .grid { display: grid; gap: 16px; }
+  .g-hero { grid-template-columns: 1.35fr 1fr 1fr 1fr; }
+  .g-2 { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 960px) { .g-hero { grid-template-columns: 1fr 1fr; } .g-2 { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { .g-hero { grid-template-columns: 1fr; } .wrap { padding: 20px 14px 40px; } }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow), 0 0 0 1px var(--ring); padding: 20px 22px; position: relative; overflow: hidden;
+          opacity: 0; transform: translateY(14px); transition: opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1), box-shadow .25s; }
+  .card.in { opacity: 1; transform: none; }
+  .card:hover { box-shadow: 0 2px 4px rgba(31,29,26,.05), 0 14px 34px rgba(31,29,26,.09), 0 0 0 1px var(--ring); }
+  .section { margin-top: 16px; }
+  .card h2 { font-size: 15px; font-weight: 700; margin: 0 0 4px; letter-spacing: .01em; }
+  .card .hint { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; line-height: 1.55; }
+  .label { font-size: 13px; color: var(--ink-2); }
+  .value { font-size: 30px; font-weight: 700; margin-top: 6px; letter-spacing: -.01em; }
+  .hero .value { font-size: 52px; line-height: 1.05; margin-top: 10px; }
+  .hero::before { content: ""; position: absolute; right: -60px; top: -60px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, var(--organic-wash), transparent 70%); }
+  .delta { font-size: 13px; margin-top: 8px; color: var(--ink-2); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .delta b.up { color: var(--good); } .delta b.down { color: var(--bad); } .delta b.flat { color: var(--ink); }
+  .meter { height: 8px; border-radius: 99px; background: var(--grid); margin-top: 14px; overflow: hidden; display: flex; gap: 2px; }
+  .meter i { display: block; height: 100%; width: 0; transition: width 1.2s cubic-bezier(.2,.7,.2,1); }
+  .meter i.o { background: var(--organic); } .meter i.a { background: var(--ads); }
+  .keys { display: flex; gap: 14px; font-size: 12.5px; color: var(--ink-2); margin-top: 10px; flex-wrap: wrap; }
+  .key { display: inline-flex; align-items: center; gap: 6px; }
+  .key::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--c); }
+
+  /* ---------- 折線圖 ---------- */
+  .chart-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  .legend { display: flex; gap: 16px; font-size: 13px; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend span::before { content: ""; width: 16px; height: 2px; border-radius: 2px; background: var(--c); }
+  .line-wrap { position: relative; margin-top: 8px; }
+  svg { display: block; width: 100%; overflow: visible; }
+  .axis text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; font-family: var(--font); }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .baseline { stroke: var(--base); stroke-width: 1; }
+  .series { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: draw 1.6s cubic-bezier(.4,.1,.2,1) forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .wash { opacity: 0; animation: fade .9s .7s ease forwards; }
+  @keyframes fade { to { opacity: 1; } }
+  .endlabel { font-size: 12px; fill: var(--ink-2); font-family: var(--font); opacity: 0; animation: fade .5s 1.5s ease forwards; }
+  .crosshair { stroke: var(--base); stroke-width: 1; opacity: 0; transition: opacity .15s; }
+  .dot { stroke: var(--card); stroke-width: 2; opacity: 0; transition: opacity .15s; }
+  .tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--card); border-radius: 10px; padding: 9px 12px; font-size: 12.5px; line-height: 1.6; opacity: 0;
+         transform: translate(-50%, -110%); transition: opacity .15s; white-space: nowrap; box-shadow: 0 8px 20px rgba(0,0,0,.18); }
+  .tip i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .note { font-size: 12.5px; color: var(--ink-2); background: var(--surface); border-radius: 12px; padding: 10px 14px; margin-top: 12px; box-shadow: 0 0 0 1px var(--ring); }
+
+  /* ---------- 橫條 ---------- */
+  .bars { display: grid; gap: 10px; }
+  .bar-row { display: grid; grid-template-columns: 92px 1fr 64px; align-items: center; gap: 10px; font-size: 13px; }
+  .bar-row .n { color: var(--ink-2); }
+  .bar-row .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .track { height: 14px; position: relative; }
+  .fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 0 4px 4px 0; background: var(--organic); transition: width 1.1s cubic-bezier(.2,.7,.2,1); }
+  .stack { height: 14px; display: flex; gap: 2px; }
+  .stack i { height: 100%; width: 0; transition: width 1.1s cubic-bezier(.2,.7,.2,1); }
+  .stack i:first-child { background: var(--organic); border-radius: 0; }
+  .stack i:last-child { background: var(--ads); border-radius: 0 4px 4px 0; }
+
+  /* ---------- 投流候選 ---------- */
+  .cands { display: grid; gap: 10px; }
+  .cand { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--surface); box-shadow: 0 0 0 1px var(--ring);
+          transition: transform .2s, box-shadow .2s; }
+  .cand:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(31,29,26,.08), 0 0 0 1px var(--ring); }
+  .badge { width: 56px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--organic-wash); color: var(--ink); font-weight: 700; font-size: 16px; line-height: 1; }
+  .badge small { display: block; font-size: 10px; font-weight: 500; color: var(--ink-2); margin-top: 2px; }
+  .cand .t { font-size: 13.5px; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .cand .m { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .empty { font-size: 13px; color: var(--muted); padding: 14px 0; }
+
+  /* ---------- 排行表 ---------- */
+  .seg { display: inline-flex; background: var(--surface); border-radius: 999px; padding: 3px; box-shadow: 0 0 0 1px var(--ring); }
+  .seg button { border: 0; background: transparent; padding: 6px 14px; border-radius: 999px; font: inherit; font-size: 13px; color: var(--ink-2); cursor: pointer; transition: background .2s, color .2s; }
+  .seg button.on { background: var(--ink); color: var(--card); }
+  .seg-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-weight: 500; color: var(--muted); font-size: 12px; padding: 8px 8px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  td { padding: 11px 8px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
+  tr { transition: background .15s; }
+  tbody tr:hover { background: var(--surface); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .ttl { display: block; font-weight: 500; min-width: 200px; max-width: 360px; line-height: 1.45; }
+  a.vlink { color: inherit; text-decoration: none; background-image: linear-gradient(currentColor, currentColor); background-size: 0 1px; background-position: 0 100%; background-repeat: no-repeat; transition: background-size .25s ease, color .2s ease; }
+  a.vlink:hover, a.vlink:focus-visible { color: var(--organic); background-size: 100% 1px; }
+  a.vlink:focus-visible { outline: 2px solid var(--organic); outline-offset: 2px; border-radius: 4px; }
+  a.vlink .ext { display: inline-block; margin-left: 4px; font-size: .85em; opacity: 0; transform: translate(-2px, 2px); transition: opacity .2s ease, transform .2s ease; }
+  a.vlink:hover .ext, a.vlink:focus-visible .ext { opacity: .8; transform: none; }
+  @media (prefers-reduced-motion: reduce) { a.vlink, a.vlink .ext { transition: none; } }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 99px; background: var(--surface); box-shadow: 0 0 0 1px var(--ring); color: var(--ink-2); margin-top: 3px; }
+  .mini { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .mini .track { width: 90px; height: 6px; background: var(--grid); border-radius: 99px; }
+  .mini .fill { border-radius: 99px; }
+  .ratio { display: inline-block; min-width: 46px; text-align: center; padding: 3px 8px; border-radius: 99px; font-weight: 700; font-size: 12px; }
+  .ratio.hi { background: rgba(11,122,11,.10); color: var(--good); }
+  .ratio.lo { background: rgba(194,52,52,.10); color: var(--bad); }
+  .ratio.mid { background: var(--surface); color: var(--ink-2); box-shadow: 0 0 0 1px var(--ring); }
+  .scroll { overflow-x: auto; }
+
+  /* ---------- 載入骨架 ---------- */
+  .skel { height: 14px; border-radius: 8px; background: linear-gradient(90deg, var(--grid), var(--surface), var(--grid)); background-size: 200% 100%; animation: shimmer 1.4s infinite; margin: 10px 0; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  footer { margin-top: 26px; font-size: 12.5px; color: var(--muted); line-height: 1.8; }
+  .err { padding: 18px; border-radius: 14px; background: rgba(194,52,52,.08); color: var(--bad); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .card { opacity: 1; transform: none; }
+    .draw { stroke-dashoffset: 0; } .wash, .endlabel { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">甘</div>
+      <div>
+        <h1>甘丹數據中心 · YouTube</h1>
+        <div class="sub">自然流量優先：扣掉 YouTube 廣告來源後，影片自己帶來多少觀看</div>
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip"><span class="pulse"></span><span id="through">讀取中…</span></span>
+      <button class="chip" id="themeBtn" type="button" aria-label="切換深淺色">◐ 深淺色</button>
+    </div>
+  </header>
+
+  <div id="app">
+    <div class="grid g-hero">
+      <div class="card in"><div class="skel" style="width:40%"></div><div class="skel" style="height:44px"></div><div class="skel" style="width:60%"></div></div>
+      <div class="card in"><div class="skel"></div><div class="skel" style="height:30px"></div></div>
+      <div class="card in"><div class="skel"></div><div class="skel" style="height:30px"></div></div>
+      <div class="card in"><div class="skel"></div><div class="skel" style="height:30px"></div></div>
+    </div>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>window.GDC_API = "https://script.google.com/macros/s/AKfycbxewWnr8kFF0ijfBLXdXip8dwNeLQHBmWHeiEYmVa2CD4sYApUsXGzFblzG-nfXGMGk/exec";</script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var fmt = function (n) { return n == null ? '—' : Math.round(n).toLocaleString('zh-TW'); };
+  var compact = function (n) { return n >= 10000 ? (n / 10000).toFixed(n >= 100000 ? 0 : 1) + ' 萬' : fmt(n); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); };
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- 深淺色切換（記在本機） ---- */
+  try { var saved = localStorage.getItem('gdc-theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); } catch (e) {}
+  $('#themeBtn').addEventListener('click', function () {
+    var cur = document.documentElement.getAttribute('data-theme');
+    var dark = cur ? cur === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var next = dark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('gdc-theme', next); } catch (e) {}
+    if (window.__DATA__) drawLine(window.__DATA__);
+  });
+
+  /* ---- 數字跳動 ---- */
+  function countUp(el, to, opts) {
+    opts = opts || {};
+    var dur = reduce ? 0 : (opts.dur || 1200), t0 = null, from = 0;
+    var show = opts.pct ? function (v) { return (v * 100).toFixed(1) + '%'; } : fmt;
+    if (!dur) { el.textContent = show(to); return; }
+    function step(t) {
+      if (!t0) t0 = t;
+      var p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = show(from + (to - from) * e);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  /* ---- 卡片依序淡入 ---- */
+  function reveal() {
+    var cards = document.querySelectorAll('.card:not(.in)');
+    var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
+      es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: .08 }) : null;
+    cards.forEach(function (c, i) {
+      c.style.transitionDelay = (Math.min(i, 8) * 70) + 'ms';
+      if (io) io.observe(c); else c.classList.add('in');
+    });
+  }
+  function grow(sel) {
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      document.querySelectorAll(sel).forEach(function (el) { el.style.width = el.getAttribute('data-w'); });
+    }); });
+  }
+  function deltaHtml(cur, prev, upIsGood, unit) {
+    if (!prev) return '<span>前 7 天沒有資料可比</span>';
+    var d = (cur - prev) / prev, up = d >= 0, cls = upIsGood == null ? 'flat' : ((upIsGood ? up : !up) ? 'up' : 'down');
+    var txt = (cur / prev >= 3) ? '約 ' + Math.round(cur / prev) + ' 倍' : (prev / Math.max(cur, 1) >= 3) ? '剩約 ' + Math.max(1, Math.round(cur / prev * 100)) + '%' : Math.abs(d * 100).toFixed(1) + '%';
+    return '<b class="' + cls + '">' + (up ? '▲ ' : '▼ ') + txt + '</b><span>比前 7 天（' + fmt(prev) + (unit || '') + '）</span>';
+  }
+
+  /* ---- 主畫面 ---- */
+  function render(d) {
+    window.__DATA__ = d;
+    var k = d.kpi;
+    $('#through').textContent = '資料到 ' + d.through + '（YouTube 約落後 3 天）';
+    var html = '';
+    html += '<div class="grid g-hero">';
+    html += '<div class="card hero"><div class="label">近 7 天自然觀看</div><div class="value" data-count="' + k.organic7 + '">0</div><div class="delta">' + deltaHtml(k.organic7, k.organic7Prev, true) + '</div></div>';
+    html += '<div class="card"><div class="label">近 7 天廣告觀看</div><div class="value" data-count="' + k.ads7 + '">0</div><div class="delta">' + deltaHtml(k.ads7, k.ads7Prev, null) + '</div></div>';
+    html += '<div class="card"><div class="label">近 28 天自然觀看</div><div class="value" data-count="' + k.organic28 + '">0</div><div class="delta"><span>每天平均 ' + fmt(k.organic28 / 28) + '</span></div></div>';
+    var oPct = (1 - k.adsShare28) * 100, aPct = k.adsShare28 * 100;
+    html += '<div class="card"><div class="label">近 28 天廣告占比</div><div class="value" data-pct="' + k.adsShare28 + '">0%</div>' +
+      '<div class="meter" role="img" aria-label="自然 ' + oPct.toFixed(1) + '%、廣告 ' + aPct.toFixed(1) + '%"><i class="o" data-w="' + oPct + '%"></i><i class="a" data-w="' + aPct + '%"></i></div>' +
+      '<div class="keys"><span class="key" style="--c:var(--organic)">自然 ' + oPct.toFixed(0) + '%</span><span class="key" style="--c:var(--ads)">廣告 ' + aPct.toFixed(0) + '%</span></div></div>';
+    html += '</div>';
+
+    html += '<div class="section card"><div class="chart-head"><div><h2>每天觀看：自然 vs 廣告</h2><p class="hint">近 35 天。滑過圖表看每天的數字；廣告觀看來自 YouTube 流量來源「YouTube 廣告」。</p></div>' +
+      '<div class="legend"><span style="--c:var(--organic)">自然觀看</span><span style="--c:var(--ads)">廣告觀看</span></div></div>' +
+      '<div class="line-wrap" id="line"></div><div class="tip" id="tip"></div>' +
+      '<details style="margin-top:10px"><summary class="hint" style="cursor:pointer;margin:0">看每天的數字表</summary><div class="scroll" id="dayTable"></div></details></div>';
+
+    html += '<div class="section grid g-2">';
+    html += '<div class="card"><h2>自然流量從哪裡來</h2><p class="hint">近 28 天，不含廣告。搜尋高＝標題關鍵字有效；首頁與訂閱高＝演算法在推。</p><div class="bars" id="sources"></div></div>';
+    html += '<div class="card"><h2>投流候選</h2><p class="hint">近 28 天沒投廣告，自然觀看是同類影片中位數 1.5 倍以上。發布不到 28 天的新片改跟同類影片的「首 7 天」比，才不會因為天數少而吃虧；未滿 7 天的先不列。系統只提名，要不要投由行銷部決定。</p><div class="cands" id="cands"></div></div>';
+    html += '</div>';
+
+    html += '<div class="section card"><div class="chart-head"><div><h2>自然表現排行</h2><p class="hint" id="rankHint"></p></div>' +
+      '<div class="seg-row"><div class="seg" id="winSeg" aria-label="天數"><button data-w="7">7 天</button><button class="on" data-w="28">28 天</button><button data-w="90">90 天</button></div>' +
+      '<div class="seg" id="seg" aria-label="類型"><button class="on" data-t="全部">全部</button><button data-t="長片">長片</button><button data-t="Shorts">Shorts</button></div></div></div>' +
+      '<div class="scroll" id="rank"></div></div>';
+
+    html += '<div class="section card"><h2>投放中的影片：自然 vs 廣告</h2><p class="hint">近 28 天有廣告觀看的影片。藍色是自然、橘色是廣告；廣告多但自然少，代表投放還沒帶動演算法推薦。</p><div class="bars" id="paid"></div></div>';
+    $('#app').innerHTML = html;
+
+    document.querySelectorAll('[data-count]').forEach(function (el) { countUp(el, +el.getAttribute('data-count')); });
+    document.querySelectorAll('[data-pct]').forEach(function (el) { countUp(el, +el.getAttribute('data-pct'), { pct: true }); });
+    var st = { t: '全部', w: '28' };
+    drawLine(d); drawDayTable(d); drawSources(d); drawCands(d, st.t); drawRank(d, st.t, st.w); drawPaid(d);
+    function segClick(sel, attr, after) {
+      $(sel).addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (!b) return;
+        document.querySelectorAll(sel + ' button').forEach(function (x) { x.classList.toggle('on', x === b); });
+        after(b.getAttribute(attr));
+      });
+    }
+    segClick('#seg', 'data-t', function (t) { st.t = t; drawRank(d, st.t, st.w); drawCands(d, st.t); });
+    segClick('#winSeg', 'data-w', function (w) { st.w = w; drawRank(d, st.t, st.w); });
+    reveal(); grow('.meter i');
+    $('#foot').innerHTML = '口徑說明：自然觀看＝總觀看 − YouTube 廣告來源觀看（YouTube Analytics）。Jinbo 週報的廣告「觀看次數」是 Google Ads 口徑，兩者算法不同，不能直接相比。<br>' +
+      '資料每天 06:00 自動更新' + (d.lastRun ? '，最後執行 ' + esc(d.lastRun) + '（' + esc(d.lastStatus) + '）' : '') + '。來源：甘丹數據中心試算表。';
+  }
+
+  /* ---- 折線圖（SVG 手繪，含十字線提示） ---- */
+  function drawLine(d) {
+    var box = $('#line'); if (!box) return;
+    var days = d.days; if (!days.length) { box.innerHTML = '<div class="empty">還沒有每日資料。</div>'; return; }
+    var W = box.clientWidth || 900, H = Math.max(220, Math.min(320, W * 0.34)), L = 48, R = 86, T = 12, B = 28;
+    var max = Math.max.apply(null, days.map(function (x) { return Math.max(x.organic, x.ads); })) || 1;
+    var step = Math.pow(10, Math.floor(Math.log10(max))), nice = Math.ceil(max / step) * step;
+    if (nice / step < 3) { step = step / 2; } nice = Math.ceil(max / step) * step;
+    var x = function (i) { return L + (W - L - R) * (days.length === 1 ? .5 : i / (days.length - 1)); };
+    var y = function (v) { return T + (H - T - B) * (1 - v / nice); };
+    var path = function (k) { return days.map(function (p, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(p[k]).toFixed(1); }).join(' '); };
+    var g = '';
+    for (var v = 0; v <= nice + 1e-9; v += step) {
+      g += '<line class="' + (v === 0 ? 'baseline' : 'gridline') + '" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '"/>';
+      g += '<text x="' + (L - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + (v >= 10000 ? (v / 10000) + '萬' : v.toLocaleString('zh-TW')) + '</text>';
+    }
+    var every = Math.ceil(days.length / Math.max(3, Math.floor((W - L - R) / 70)));
+    var lastI = days.length - 1, showLast = true;   // 最新一天一定標，太靠近它的那一格讓位
+    days.forEach(function (p, i) { if ((i % every === 0 && !(i !== lastI && lastI - i < every / 2 && showLast)) || (i === lastI && showLast)) g += '<text x="' + x(i) + '" y="' + (H - 8) + '" text-anchor="middle">' + (+p.d.slice(5, 7)) + '/' + (+p.d.slice(8)) + '</text>'; });
+    var area = path('organic') + ' L' + x(days.length - 1) + ' ' + y(0) + ' L' + x(0) + ' ' + y(0) + ' Z';
+    var last = days[days.length - 1];
+    var lo = y(last.organic), la = y(last.ads); if (Math.abs(lo - la) < 16) { if (lo < la) la = lo + 16; else lo = la + 16; }
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" height="' + H + '" role="img" aria-label="近 35 天每日自然觀看與廣告觀看折線圖">' +
+      '<g class="axis">' + g + '</g>' +
+      '<path class="wash" d="' + area + '" fill="var(--organic-wash)"/>' +
+      '<path class="series draw" id="pA" d="' + path('ads') + '" stroke="var(--ads)"/>' +
+      '<path class="series draw" id="pO" d="' + path('organic') + '" stroke="var(--organic)"/>' +
+      '<circle cx="' + x(days.length - 1) + '" cy="' + y(last.organic) + '" r="4" fill="var(--organic)" stroke="var(--card)" stroke-width="2" class="wash"/>' +
+      '<circle cx="' + x(days.length - 1) + '" cy="' + y(last.ads) + '" r="4" fill="var(--ads)" stroke="var(--card)" stroke-width="2" class="wash"/>' +
+      '<text class="endlabel" x="' + (x(days.length - 1) + 10) + '" y="' + (lo + 4) + '">自然 ' + fmt(last.organic) + '</text>' +
+      '<text class="endlabel" x="' + (x(days.length - 1) + 10) + '" y="' + (la + 4) + '">廣告 ' + fmt(last.ads) + '</text>' +
+      '<line class="crosshair" id="ch" y1="' + T + '" y2="' + (H - B) + '"/>' +
+      '<circle class="dot" id="dO" r="5" fill="var(--organic)"/><circle class="dot" id="dA" r="5" fill="var(--ads)"/>' +
+      '<rect id="hit" x="' + L + '" y="' + T + '" width="' + (W - L - R) + '" height="' + (H - T - B) + '" fill="transparent"/></svg>';
+    box.innerHTML = svg;
+    ['pA', 'pO'].forEach(function (id) { var p = document.getElementById(id); p.style.setProperty('--len', p.getTotalLength()); });
+    var tip = $('#tip'), hit = $('#hit');
+    function move(ev) {
+      var r = box.querySelector('svg').getBoundingClientRect(), sx = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
+      var scale = W / r.width, px = sx * scale, i = Math.round((px - L) / ((W - L - R) / Math.max(1, days.length - 1)));
+      i = Math.max(0, Math.min(days.length - 1, i));
+      var p = days[i], cx = x(i);
+      $('#ch').setAttribute('x1', cx); $('#ch').setAttribute('x2', cx); $('#ch').style.opacity = 1;
+      $('#dO').setAttribute('cx', cx); $('#dO').setAttribute('cy', y(p.organic)); $('#dO').style.opacity = 1;
+      $('#dA').setAttribute('cx', cx); $('#dA').setAttribute('cy', y(p.ads)); $('#dA').style.opacity = 1;
+      tip.innerHTML = '<b>' + p.d + '</b><br><i style="background:var(--organic)"></i>自然 ' + fmt(p.organic) + '<br><i style="background:var(--ads)"></i>廣告 ' + fmt(p.ads);
+      var bx = box.getBoundingClientRect(), card = box.closest('.card').getBoundingClientRect();
+      tip.style.left = (cx / scale + bx.left - card.left) + 'px'; tip.style.top = (Math.min(y(p.organic), y(p.ads)) / scale + bx.top - card.top) + 'px'; tip.style.opacity = 1;
+    }
+    function leave() { $('#ch').style.opacity = 0; $('#dO').style.opacity = 0; $('#dA').style.opacity = 0; tip.style.opacity = 0; }
+    hit.addEventListener('mousemove', move); hit.addEventListener('touchmove', move, { passive: true });
+    hit.addEventListener('mouseleave', leave); hit.addEventListener('touchend', leave);
+  }
+  function drawDayTable(d) {
+    var rows = d.days.slice().reverse().map(function (p) { return '<tr><td>' + p.d + '</td><td class="num">' + fmt(p.organic) + '</td><td class="num">' + fmt(p.ads) + '</td></tr>'; }).join('');
+    $('#dayTable').innerHTML = '<table><thead><tr><th>日期</th><th class="num">自然觀看</th><th class="num">廣告觀看</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+  function drawSources(d) {
+    var s = d.sources28.slice(0, 7), max = s.length ? s[0].value : 1;
+    $('#sources').innerHTML = s.length ? s.map(function (x) {
+      return '<div class="bar-row"><span class="n">' + esc(x.name) + '</span><span class="track"><span class="fill" data-w="' + (x.value / max * 100) + '%"></span></span><span class="v">' + compact(x.value) + '</span></div>';
+    }).join('') : '<div class="empty">還沒有資料。</div>';
+    grow('#sources .fill');
+  }
+  function drawCands(d, t) {
+    var c = (d.candidates && d.candidates[t]) || [];
+    $('#cands').innerHTML = c.length ? c.map(function (v) {
+      return '<div class="cand"><div class="badge">' + v.ratio.toFixed(1) + '<small>倍</small></div><div>' + vlink(v, 't') +
+        '<div class="m">' + esc(v.type) + (v.basis === '首7天'
+          ? ' · 新片（發布第 ' + v.age + ' 天）· 首 7 天自然 ' + fmt(v.first7) + '，跟同類首 7 天比'
+          : ' · 近 28 天自然 ' + fmt(v.organic28) + '，跟同類近 28 天比') + '</div></div></div>';
+    }).join('') : '<div class="empty">這個類型目前沒有符合條件的影片。</div>';
+  }
+  function vurl(id) { return /^[A-Za-z0-9_-]{11}$/.test(id || '') ? 'https://www.youtube.com/watch?v=' + id : ''; }
+  function vlink(v, cls, extra) {
+    var u = vurl(v.id), a = ' class="' + cls + (u ? ' vlink' : '') + '"' + (extra || '');
+    return u ? '<a' + a + ' href="' + u + '" target="_blank" rel="noopener" aria-label="在 YouTube 開啟：' + esc(v.title) + '">' + esc(v.title) + '<span class="ext" aria-hidden="true">↗</span></a>'
+      : '<span' + a + '>' + esc(v.title) + '</span>';
+  }
+  function ratioPill(r) {
+    if (r == null) return '<span class="ratio mid">—</span>';
+    var cls = r >= 1.5 ? 'hi' : r <= 0.5 ? 'lo' : 'mid';
+    return '<span class="ratio ' + cls + '">' + r.toFixed(2) + '</span>';
+  }
+  function drawRank(d, t, w) {
+    var list = (d.rank && d.rank[w] && d.rank[w][t]) || [];
+    var max = list.length ? Math.max(list[0].organic, 1) : 1;
+    $('#rankHint').textContent = '近 ' + w + ' 天自然觀看前 8 名。「同類比值」＝近 ' + w + ' 天自然觀看 ÷ 同類型影片的中位數，≥1.5 綠、≤0.5 紅。' +
+      '發布不到 ' + w + ' 天的新片天數較少，新舊片要比請看「首 7 天自然」。';
+    var rows = list.map(function (v, i) {
+      return '<tr><td style="color:var(--muted);width:28px">' + (i + 1) + '</td><td>' + vlink(v, 'ttl') + '<span class="tag">' + esc(v.type) + '</span></td>' +
+        '<td class="num"><div class="mini"><span>' + fmt(v.organic) + '</span><span class="track"><span class="fill" data-w="' + (v.organic / max * 100) + '%"></span></span></div></td>' +
+        '<td class="num">' + fmt(v.ads) + '</td><td class="num">' + ratioPill(v.ratio) + '</td>' +
+        '<td class="num">' + (v.avgPct == null ? '—' : v.avgPct.toFixed(1) + '%') + '</td><td class="num">' + fmt(v.first7) + '</td></tr>';
+    }).join('');
+    $('#rank').innerHTML = list.length ? '<table><thead><tr><th></th><th>影片</th><th class="num">近 ' + w + ' 天自然</th><th class="num">近 ' + w + ' 天廣告</th><th class="num">同類比值</th><th class="num">平均觀看（28 天）</th><th class="num">首 7 天自然</th></tr></thead><tbody>' + rows + '</tbody></table>'
+      : '<div class="empty">這個類型目前沒有資料。（排行只算有逐日資料的影片）</div>';
+    grow('#rank .fill');
+  }
+  function drawPaid(d) {
+    var p = d.paid, max = p.length ? Math.max.apply(null, p.map(function (v) { return v.ads28 + v.organic28; })) : 1;
+    $('#paid').innerHTML = p.length ? p.map(function (v) {
+      var tot = v.ads28 + v.organic28;
+      return '<div class="bar-row" style="grid-template-columns:minmax(140px,1.2fr) 2fr 130px">' + vlink(v, 'n', ' title="' + esc(v.title) + '" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"') +
+        '<span class="stack" style="width:' + (tot / max * 100) + '%" role="img" aria-label="自然 ' + fmt(v.organic28) + '、廣告 ' + fmt(v.ads28) + '"><i data-w="' + (v.organic28 / tot * 100) + '%"></i><i data-w="' + (v.ads28 / tot * 100) + '%"></i></span>' +
+        '<span class="v">廣告占 ' + (v.adsShare * 100).toFixed(0) + '%</span></div>';
+    }).join('') + '<div class="keys"><span class="key" style="--c:var(--organic)">自然觀看</span><span class="key" style="--c:var(--ads)">廣告觀看</span></div>'
+      : '<div class="empty">近 28 天沒有影片有廣告觀看。</div>';
+    grow('#paid .stack i');
+  }
+  var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { if (window.__DATA__) drawLine(window.__DATA__); }, 150); });
+
+  function fail(e) { $('#app').innerHTML = '<div class="err">讀不到資料：' + esc(e && e.message ? e.message : e) + '。請稍後重新整理；若持續發生，請告訴 Ethan。</div>'; }
+  if (window.google && google.script && google.script.run) {
+    google.script.run.withSuccessHandler(render).withFailureHandler(fail).getDashboardData();
+  } else if (window.GDC_API) {
+    // GitHub Pages 版：背景抓 Apps Script JSON（不帶 Google 登入資料，多帳號也能開）
+    fetch(window.GDC_API + '?format=json', { credentials: 'omit', cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (j) { if (j && j.error) throw new Error(j.error); render(j); })
+      .catch(fail);
+  } else if (window.__MOCK__) {
+    render(window.__MOCK__);
+  } else {
+    fail('不在 Apps Script 網頁中執行，也沒有預覽資料');
+  }
+})();
+</script>
+</body>
+</html>

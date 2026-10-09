@@ -367,6 +367,8 @@
       '<li>排序：倍數高的在前。</li>' +
       '<li>只從研究的 23 個設計／裝修專業頻道挑，不含甘丹自己；觀看數是研究當天的數字，每季跟研究一起更新。</li></ol></details>' +
       '<div class="scroll" id="topicMap"></div></div>';
+    html += '<div class="section card"><div class="chart-head"><div><h2>影片帶來的諮詢（推估）</h2><p class="hint">把官網諮詢單對回影片，分三層：<b>確定</b>＝諮詢單帶影片追蹤碼；<b>時間推測</b>＝填單前 60 分鐘內有人點了那支影片的說明欄連結；<b>分攤</b>＝客戶自述「YouTube」但對不到點擊，依填單前 7 天各影片的自然觀看比例分攤（假設，不是事實）。樣本很少，看題材層級比看單支影片可靠。</p></div>' +
+      '<div class="summary-chip" id="convSummary"></div></div><div class="scroll" id="convTopics"></div><div class="scroll" id="convVideos" style="margin-top:14px"></div></div>';
     html += '<div class="section card"><div class="chart-head"><div><h2>審片 vs 實際</h2><p class="hint">拍前在試算表「審片紀錄」分頁打分數（左邊欄位），程式每天算出判定，上片後自動接實際表現。實際優先用「首 28 天自然 ÷ 同類中位」，還沒滿 28 天就用手填的倍數；≥1 算達標。每季用這張表檢討審片門檻準不準。</p></div>' +
       '<div class="summary-chip" id="reviewSummary"></div></div><div class="scroll" id="reviews"></div></div>';
     $('#app').innerHTML = html;
@@ -375,7 +377,7 @@
     document.querySelectorAll('[data-pct]').forEach(function (el) { countUp(el, +el.getAttribute('data-pct'), { pct: true }); });
     var st = { t: '全部', w: '28' };
     drawLine(d); drawDayTable(d); drawSources(d); drawCands(d, st.t); drawRank(d, st.t, st.w); drawPaid(d);
-    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawReviews(d);
+    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawReviews(d); drawConversions(d);
     function segClick(sel, attr, after) {
       $(sel).addEventListener('click', function (e) {
         var b = e.target.closest('button'); if (!b) return;
@@ -564,6 +566,25 @@
     }
     $('#topicMap').onclick = function (e) { if (e.target.closest('a')) return; var tr = e.target.closest('tr.trow'); if (tr) toggle(tr); };
     $('#topicMap').onkeydown = function (e) { var tr = e.target.closest('tr.trow'); if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggle(tr); } };
+  }
+  /* ---- 影片帶來的諮詢（推估） ---- */
+  function n2(x) { return x == null ? '—' : (Math.round(x * 10) / 10).toString(); }
+  function drawConversions(d) {
+    var c = d.conversions || { videos: [], topics: [], summary: {} }, s = c.summary || {};
+    $('#convSummary').innerHTML = (c.videos || []).length || s.unmatched
+      ? '自述 YouTube 但對不到影片 <b>' + (s.unmatched || 0) + '</b> 筆，已分攤 ' + (s.allocated || 0) + ' 筆' + (s.unallocatable ? '（' + s.unallocatable + ' 筆太早、沒有觀看資料可分）' : '')
+      : '還沒有資料（追蹤系統每小時更新匯總，數據中心每天 06:00 讀一次）';
+    var tp = c.topics || [];
+    $('#convTopics').innerHTML = tp.length ? '<table><thead><tr><th>題材</th><th class="num">有諮詢的影片</th><th class="num">推估諮詢</th><th class="num">推估成交</th></tr></thead><tbody>' +
+      tp.map(function (t) { return '<tr><td>' + esc(t.topic) + '</td><td class="num">' + t.videos + '</td><td class="num">' + n2(t.total) + '</td><td class="num">' + n2(t.deals) + '</td></tr>'; }).join('') +
+      '</tbody></table>' : '';
+    var vs = (c.videos || []).slice(0, 10);
+    $('#convVideos').innerHTML = vs.length ? '<table><thead><tr><th>影片</th><th class="num">確定</th><th class="num">時間推測</th><th class="num">分攤</th><th class="num">推估諮詢</th><th class="num">推估成交</th></tr></thead><tbody>' +
+      vs.map(function (v) {
+        return '<tr><td>' + vlink({ id: v.id, title: v.title || v.id }, 'ttl') + (v.type ? '<span class="tag">' + esc(v.type) + '</span>' : '') + (v.tag ? '<span class="tag topic">' + esc(v.tag) + '</span>' : '') + '</td>' +
+          '<td class="num">' + n2(v.confirmed) + '</td><td class="num">' + n2(v.guessed) + '</td><td class="num">' + n2(v.allocated) + '</td>' +
+          '<td class="num"><b>' + n2(v.total) + '</b></td><td class="num">' + n2(v.deals) + '</td></tr>';
+      }).join('') + '</tbody></table>' : '<div class="empty">還沒有可對回影片的諮詢。</div>';
   }
   /* ---- ④ 審片 vs 實際 ---- */
   function resultPill(r) {

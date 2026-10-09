@@ -166,6 +166,33 @@
   .med-track { position: relative; width: 120px; height: 8px; background: var(--grid); border-radius: 99px; display: inline-block; vertical-align: middle; margin-left: 8px; }
   .med-track .fill { border-radius: 99px; }
   .med-track .one { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink-2); opacity: .5; }
+  #topicMap tbody tr.trow { cursor: pointer; }
+  #topicMap tbody tr.trow:focus-visible { outline: 2px solid var(--organic); outline-offset: -2px; }
+  .chev { display: inline-block; margin-left: 6px; color: var(--muted); transition: transform .25s ease; font-size: 11px; }
+  tr.trow.open .chev { transform: rotate(180deg); }
+  .ex-count { font-size: 11.5px; color: var(--organic); margin-left: 6px; font-weight: 500; }
+  tr.exrow > td { padding: 0 8px; border-bottom: 1px solid var(--grid); background: var(--surface); }
+  .exwrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s cubic-bezier(.2,.7,.2,1); }
+  tr.exrow.open .exwrap { grid-template-rows: 1fr; }
+  .exwrap > div { overflow: hidden; }
+  .exgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; padding: 14px 4px 16px;
+            position: sticky; left: 0; max-width: calc(100vw - 72px); }
+  @media (max-width: 560px) { .exgrid { grid-template-columns: 1fr; max-width: calc(100vw - 60px); } }
+  .excard { background: var(--card); border-radius: 14px; overflow: hidden; box-shadow: 0 0 0 1px var(--ring); display: flex; flex-direction: column;
+            opacity: 0; transform: translateY(8px); transition: opacity .4s ease, transform .4s ease, box-shadow .2s; }
+  tr.exrow.open .excard { opacity: 1; transform: none; }
+  .excard:hover { box-shadow: 0 8px 22px rgba(31,29,26,.10), 0 0 0 1px var(--ring); }
+  .excard .thumb { position: relative; display: block; aspect-ratio: 16 / 9; background: var(--grid); }
+  .excard .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .excard .mult { position: absolute; left: 8px; bottom: 8px; background: rgba(20,19,17,.82); color: #fff; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 99px; }
+  .excard .body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .excard .t { font-size: 13px; font-weight: 500; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .excard .m { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .exempty { font-size: 12.5px; color: var(--muted); padding: 14px 4px; }
+  details.rules { margin: 0 0 12px; font-size: 12.5px; color: var(--ink-2); }
+  details.rules summary { cursor: pointer; color: var(--organic); }
+  details.rules ol { margin: 8px 0 0; padding-left: 20px; line-height: 1.75; }
+  @media (prefers-reduced-motion: reduce) { .exwrap, .excard, .chev { transition: none; } }
   .summary-chip { display: inline-flex; gap: 6px; align-items: baseline; font-size: 13px; color: var(--ink-2); }
   .summary-chip b { font-size: 22px; color: var(--ink); }
   .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 99px; background: var(--surface); box-shadow: 0 0 0 1px var(--ring); color: var(--ink-2); margin-top: 3px; }
@@ -294,7 +321,8 @@
       '<div class="keys"><span class="key" style="--c:var(--organic)">自然 ' + oPct.toFixed(0) + '%</span><span class="key" style="--c:var(--ads)">廣告 ' + aPct.toFixed(0) + '%</span></div></div>';
     html += '</div>';
 
-    html += '<div class="section card"><div class="chart-head"><div><h2>新片檢查</h2><p class="hint">近 60 天上架的長片，照拍片前審片表的拍後檢討門檻亮燈。前兩天看既有觀眾買不買單；第 2→7 天成長看有沒有擴散到新觀眾；首 28 天看最後表現。都用自然觀看，資料落後約 3 天。曝光數與縮圖點閱率還沒接，要到 YouTube 工作室看。</p></div></div>' +
+    html += '<div class="section card"><div class="chart-head"><div><h2>新片檢查</h2><p class="hint" id="launchHint"></p></div>' +
+      '<div class="seg" id="launchSeg" aria-label="影片類型"><button class="on" data-k="long">長片</button><button data-k="shorts">Shorts</button></div></div>' +
       '<div class="scroll" id="launch"></div></div>';
     html += '<div class="section card"><div class="chart-head"><div><h2>每天觀看：自然 vs 廣告</h2><p class="hint">近 35 天。滑過圖表看每天的數字；廣告觀看來自 YouTube 流量來源「YouTube 廣告」。</p></div>' +
       '<div class="legend"><span style="--c:var(--organic)">自然觀看</span><span style="--c:var(--ads)">廣告觀看</span></div></div>' +
@@ -314,6 +342,15 @@
     html += '<div class="section card"><h2>投放中的影片：自然 vs 廣告</h2><p class="hint">近 28 天有廣告觀看的影片。藍色是自然、橘色是廣告；廣告多但自然少，代表投放還沒帶動演算法推薦。</p><div class="bars" id="paid"></div></div>';
     html += '<div class="section card"><div class="chart-head"><div><h2>市場題材地圖</h2><p class="hint" id="topicHint"></p></div>' +
       '<div class="seg" id="topicSeg" aria-label="分類"><button class="on" data-k="topics">題材</button><button data-k="forms">形式</button></div></div>' +
+      '<details class="rules"><summary>案例影片怎麼挑的（點題材那一列就會展開）</summary><ol>' +
+      '<li>一定是爆片：觀看至少是該頻道平常長片的 2 倍。跟自己頻道比，代表是題材贏，不是頻道大。</li>' +
+      '<li>排除可能買流量的：投流嫌疑必須是「無」，疑似、邊緣、無法判斷的都不選。</li>' +
+      '<li>排除業配：標題看起來是業配或品牌企劃的不選，品牌可能另外投放。</li>' +
+      '<li>分類要可靠：題材分類信心為高或中。</li>' +
+      '<li>有基本觀看量：至少 5,000 次，避免小頻道從 300 變 1,000 這種雜訊。</li>' +
+      '<li>跨頻道：每個題材最多 3 支，而且一個頻道只選 1 支，才看得到不同做法。</li>' +
+      '<li>排序：倍數高的在前。</li>' +
+      '<li>只從研究的 23 個設計／裝修專業頻道挑，不含甘丹自己；觀看數是研究當天的數字，每季跟研究一起更新。</li></ol></details>' +
       '<div class="scroll" id="topicMap"></div></div>';
     html += '<div class="section card"><div class="chart-head"><div><h2>審片 vs 實際</h2><p class="hint">拍前在試算表「審片紀錄」分頁打分數（左邊欄位），程式每天算出判定，上片後自動接實際表現。實際優先用「首 28 天自然 ÷ 同類中位」，還沒滿 28 天就用手填的倍數；≥1 算達標。每季用這張表檢討審片門檻準不準。</p></div>' +
       '<div class="summary-chip" id="reviewSummary"></div></div><div class="scroll" id="reviews"></div></div>';
@@ -323,7 +360,7 @@
     document.querySelectorAll('[data-pct]').forEach(function (el) { countUp(el, +el.getAttribute('data-pct'), { pct: true }); });
     var st = { t: '全部', w: '28' };
     drawLine(d); drawDayTable(d); drawSources(d); drawCands(d, st.t); drawRank(d, st.t, st.w); drawPaid(d);
-    drawLaunch(d); drawTopics(d, 'topics'); drawReviews(d);
+    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawReviews(d);
     function segClick(sel, attr, after) {
       $(sel).addEventListener('click', function (e) {
         var b = e.target.closest('button'); if (!b) return;
@@ -334,6 +371,7 @@
     segClick('#seg', 'data-t', function (t) { st.t = t; drawRank(d, st.t, st.w); drawCands(d, st.t); });
     segClick('#winSeg', 'data-w', function (w) { st.w = w; drawRank(d, st.t, st.w); });
     segClick('#topicSeg', 'data-k', function (k) { drawTopics(d, k); });
+    segClick('#launchSeg', 'data-k', function (k) { drawLaunch(d, k); });
     reveal(); grow('.meter i');
     $('#foot').innerHTML = '口徑說明：自然觀看＝總觀看 − YouTube 廣告來源觀看（YouTube Analytics）。Jinbo 週報的廣告「觀看次數」是 Google Ads 口徑，兩者算法不同，不能直接相比。<br>' +
       '資料每天 06:00 自動更新' + (d.lastRun ? '，最後執行 ' + esc(d.lastRun) + '（' + esc(d.lastStatus) + '）' : '') + '。來源：甘丹數據中心試算表。';
@@ -446,22 +484,42 @@
     return '<span class="ratio ' + cls + '">' + x.toFixed(digits == null ? 2 : digits) + (suffix || '') + '</span>';
   }
   function launchVerdict(v) {
+    if (v.type === 'Shorts') {
+      if (v.ratio28 != null) return v.ratio28 >= 1.5 ? '28 天比同類 Shorts 明顯好' : v.ratio28 <= 0.5 ? '28 天比同類 Shorts 明顯差' : '28 天跟同類 Shorts 差不多';
+      if (v.growth7 != null) return v.growth7 > 2.5 ? 'Shorts 動態還在持續推，可以考慮投流' : v.growth7 < 1.5 ? '前兩天之後就沒再被推' : '有持續被推一些，再觀察到 28 天';
+      if (v.ratio2 != null) return v.ratio2 < 0.5 ? '開局比同期 Shorts 弱，檢查開頭 3 秒與標題' : v.ratio2 >= 1 ? '開局比同期 Shorts 好，等第 7 天' : '開局普通，等第 7 天';
+      return '資料還沒進來（落後約 3 天）';
+    }
     if (v.ratio28 != null) return v.ratio28 >= 1.5 ? '28 天表現明顯比同類好' : v.ratio28 <= 0.5 ? '28 天表現明顯比同類差，檢討題材或內容有沒有兌現' : '28 天表現跟同類差不多';
     if (v.growth7 != null) return v.growth7 > 2.5 ? '正在擴散到新觀眾，可以考慮投流' : v.growth7 < 1.5 ? '只有訂閱者在看，沒有擴散' : '有一點擴散，再觀察到 28 天';
     if (v.ratio2 != null) return v.ratio2 < 0.5 ? '既有觀眾不買單，檢查題材與封面' : v.ratio2 >= 1 ? '開局比同期好，等第 7 天看擴散' : '開局普通，等第 7 天看擴散';
     return '資料還沒進來（落後約 3 天）';
   }
-  function drawLaunch(d) {
-    var list = d.launch || [];
+  function drawLaunch(d, k) {
+    var L = d.launch || {}, list = Array.isArray(L) ? (k === 'long' ? L : []) : (L[k] || []), sh = k === 'shorts';
+    $('#launchHint').textContent = sh
+      ? '近 60 天上架的 Shorts，只跟其他 Shorts 比（同期中位用它之前 10 支 Shorts）。燈號門檻暫時沿用長片，選題研究沒有做 Shorts，還沒用甘丹數據驗證，先當參考。Shorts 的觀看主要來自 Shorts 動態，不是訂閱者。'
+      : '近 60 天上架的長片，照拍片前審片表的拍後檢討門檻亮燈。前兩天看既有觀眾買不買單；第 2→7 天成長看有沒有擴散到新觀眾；首 28 天看最後表現。都用自然觀看，資料落後約 3 天。曝光數與縮圖點閱率還沒接，要到 YouTube 工作室看。';
     $('#launch').innerHTML = list.length ? '<table><thead><tr><th>影片</th><th class="num">前兩天自然</th><th class="num">÷同期中位</th><th class="num">第 2→7 天成長</th><th class="num">首 28 天÷同類</th><th>判讀</th></tr></thead><tbody>' +
       list.map(function (v) {
         return '<tr><td>' + vlink(v, 'ttl') + '<div class="sub2">' + esc(v.pub) + ' 上架・第 ' + v.age + ' 天' + (v.tag ? '<span class="tag topic">' + esc(v.tag) + '</span>' : '') + '</div></td>' +
           '<td class="num">' + fmt(v.first2) + '</td><td class="num">' + light(v.ratio2, 0.5, 1) + '</td><td class="num">' + light(v.growth7, 1.5, 2.5001, 1, ' 倍') + '</td>' +
           '<td class="num">' + light(v.ratio28, 0.5001, 1.5) + '</td><td class="verdict">' + esc(launchVerdict(v)) + '</td></tr>';
-      }).join('') + '</tbody></table>' : '<div class="empty">近 60 天沒有上架長片。</div>';
+      }).join('') + '</tbody></table>' : '<div class="empty">近 60 天沒有上架' + (sh ? ' Shorts' : '長片') + '。</div>';
   }
   /* ---- ③ 市場題材地圖 ---- */
   var RATING_CLS = { '強': 'r-strong', '中': 'r-mid', '弱': 'r-weak' };
+  function exampleCards(exs) {
+    if (!exs.length) return '<div class="exempty">這一類沒有符合挑選原則的案例。</div>';
+    return '<div class="exgrid">' + exs.map(function (v, j) {
+      var u = vurl(v.id);
+      var thumb = u ? '<a class="thumb" href="' + u + '" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img alt="" loading="lazy" data-src="https://i.ytimg.com/vi/' + v.id + '/mqdefault.jpg"><span class="mult">頻道平常的 ' + (v.multiple == null ? '—' : v.multiple.toFixed(1)) + ' 倍</span></a>' : '';
+      var subs = v.subs ? ' · 訂閱 ' + compact(v.subs) : '';
+      return '<div class="excard" style="transition-delay:' + (j * 70) + 'ms">' + thumb + '<div class="body">' + vlink(v, 't') +
+        '<div class="m">' + esc(v.channel) + subs + '<br>' + fmt(v.views) + ' 次觀看 · ' + esc(v.pub) + '</div>' +
+        (v.form ? '<div><span class="tag topic" style="margin-left:0">' + esc(v.form) + '</span></div>' : '') + '</div></div>';
+    }).join('') + '</div>';
+  }
   function drawTopics(d, k) {
     var t = d.topics || {}, list = t[k] || [];
     $('#topicHint').textContent = (t.note || '還沒匯入選題研究資料（在 Apps Script 執行 seedTopicData）') +
@@ -470,17 +528,27 @@
     var max = Math.max.apply(null, list.map(function (x) { return Math.max(x.median || 0, x.gandanMedian || 0); }).concat([1.5]));
     var head = '<table><thead><tr><th>' + (k === 'forms' ? '形式' : '題材') + '</th>' + (k === 'topics' ? '<th>評級</th>' : '') +
       '<th class="num">市場倍數中位</th><th class="num">爆片率</th><th class="num">爆過的頻道</th><th class="num">甘丹倍數中位</th></tr></thead><tbody>';
-    var rows = list.map(function (x) {
+    var rows = list.map(function (x, i) {
       var rating = k === 'topics' ? '<td>' + (x.rating ? '<span class="rating ' + (RATING_CLS[x.rating] || 'r-mid') + '">' + esc(x.rating) + '</span>' : '') + '</td>' : '';
       var med = x.median == null ? '—' : x.median.toFixed(2);
       var bar = '<span class="med-track"><span class="fill" data-w="' + ((x.median || 0) / max * 100) + '%"></span><span class="one" style="left:' + (1 / max * 100) + '%"></span></span>';
       var gd = x.gandanMedian == null ? '<span style="color:var(--muted)">沒拍過</span>' : x.gandanMedian.toFixed(2) + '<div class="sub2">' + x.gandanN + ' 支</div>';
-      return '<tr><td><b style="font-weight:500">' + esc(x.name) + '</b><div class="sub2">市場 ' + fmt(x.n) + ' 支</div></td>' + rating +
+      var exs = x.examples || [], cols = k === 'topics' ? 6 : 5;
+      var cnt = exs.length ? '<span class="ex-count">' + exs.length + ' 支案例</span>' : '';
+      return '<tr class="trow" tabindex="0" aria-expanded="false" data-i="' + i + '"><td><b style="font-weight:500">' + esc(x.name) + '</b>' + cnt + '<span class="chev" aria-hidden="true">▾</span><div class="sub2">市場 ' + fmt(x.n) + ' 支</div></td>' + rating +
         '<td class="num">' + med + bar + '</td><td class="num">' + (x.burstRate == null ? '—' : x.burstRate + '%') + '</td>' +
-        '<td class="num">' + fmt(x.burstChannels) + '</td><td class="num">' + gd + '</td></tr>';
+        '<td class="num">' + fmt(x.burstChannels) + '</td><td class="num">' + gd + '</td></tr>' +
+        '<tr class="exrow" data-i="' + i + '"><td colspan="' + cols + '"><div class="exwrap"><div>' + exampleCards(exs) + '</div></div></td></tr>';
     }).join('');
     $('#topicMap').innerHTML = head + rows + '</tbody></table>';
     grow('#topicMap .fill');
+    function toggle(tr) {
+      var i = tr.getAttribute('data-i'), ex = $('#topicMap tr.exrow[data-i="' + i + '"]'), open = !tr.classList.contains('open');
+      tr.classList.toggle('open', open); ex.classList.toggle('open', open); tr.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) ex.querySelectorAll('img[data-src]').forEach(function (im) { im.src = im.getAttribute('data-src'); im.removeAttribute('data-src'); });
+    }
+    $('#topicMap').onclick = function (e) { if (e.target.closest('a')) return; var tr = e.target.closest('tr.trow'); if (tr) toggle(tr); };
+    $('#topicMap').onkeydown = function (e) { var tr = e.target.closest('tr.trow'); if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggle(tr); } };
   }
   /* ---- ④ 審片 vs 實際 ---- */
   function resultPill(r) {

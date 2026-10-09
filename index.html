@@ -540,7 +540,7 @@
   function drawTopics(d, k) {
     var t = d.topics || {}, list = t[k] || [];
     $('#topicHint').textContent = (t.note || '還沒匯入選題研究資料（在 Apps Script 執行 seedTopicData）') +
-      '。倍數＝影片觀看 ÷ 該頻道長片中位數，1 代表普通，灰線就是 1；爆片＝倍數 ≥2。評級照拍片前審片表附表。';
+      '。倍數＝影片觀看 ÷ 該頻道長片中位數，1 代表普通，灰線就是 1；爆片＝倍數 ≥2。評級每週依數據自動算：倍數中位 ≥1.10 且至少 5 個頻道爆過＝強，<0.95＝弱，其餘（含不到 20 支）＝中；要越過門檻 0.03 以上才改，審片表 A1 以這裡為準。';
     if (!list.length) { $('#topicMap').innerHTML = '<div class="empty">還沒有資料。</div>'; return; }
     var max = Math.max.apply(null, list.map(function (x) { return Math.max(x.median || 0, x.gandanMedian || 0); }).concat([1.5]));
     var head = '<table><thead><tr><th>' + (k === 'forms' ? '形式' : '題材') + '</th>' + (k === 'topics' ? '<th>評級</th>' : '') +

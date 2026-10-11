@@ -578,9 +578,10 @@
     $('#launchHint').textContent = sh
       ? '近 60 天上架的 Shorts，只跟其他 Shorts 比（同期中位用它之前 10 支 Shorts）。燈號門檻暫時沿用長片，選題研究沒有做 Shorts，還沒用甘丹數據驗證，先當參考。Shorts 的觀看主要來自 Shorts 動態，不是訂閱者。'
       : '近 60 天上架的長片，照拍片前審片表的拍後檢討門檻亮燈。前兩天看既有觀眾買不買單；第 2→7 天成長看有沒有擴散到新觀眾；首 28 天看最後表現。都用自然觀看，資料落後約 3 天。曝光數與縮圖點閱率還沒接，要到 YouTube 工作室看。';
-    $('#launch').innerHTML = list.length ? '<table><thead><tr><th>影片</th><th class="num">前兩天自然</th><th class="num">÷同期中位</th><th class="num">第 2→7 天成長</th><th class="num">首 28 天÷同類</th><th>判讀</th></tr></thead><tbody>' +
+    $('#launch').innerHTML = list.length ? '<table><thead><tr><th>影片</th><th class="num">累計總觀看</th><th class="num">前兩天自然</th><th class="num">÷同期中位</th><th class="num">第 2→7 天成長</th><th class="num">首 28 天÷同類</th><th>判讀</th></tr></thead><tbody>' +
       list.map(function (v) {
         return '<tr class="crow" tabindex="0" aria-expanded="false" data-card="' + esc(v.id) + '"><td>' + vlink(v, 'ttl') + '<span class="clabel" aria-hidden="true">成績單<span class="cchev">▾</span></span><div class="sub2">' + esc(v.pub) + ' 上架・第 ' + v.age + ' 天' + (v.tag ? '<span class="tag topic">' + esc(v.tag) + '</span>' : '') + '</div></td>' +
+          '<td class="num">' + fmt(v.total) + (v.total != null ? '<div class="sub2">' + (v.ads ? '自然 ' + fmt(v.total - v.ads) + '・廣告 ' + fmt(v.ads) : '全部是自然') + '</div>' : '') + '</td>' +
           '<td class="num">' + fmt(v.first2) + '</td><td class="num">' + light(v.ratio2, 0.5, 1) + '</td><td class="num">' + light(v.growth7, 1.5, 2.5001, 1, ' 倍') + '</td>' +
           '<td class="num">' + light(v.ratio28, 0.5001, 1.5) + '</td><td class="verdict">' + esc(launchVerdict(v)) + '</td></tr>';
       }).join('') + '</tbody></table>' : '<div class="empty">近 60 天沒有上架' + (sh ? ' Shorts' : '長片') + '。</div>';
@@ -646,6 +647,7 @@
     '近 28 天廣告占比': ['最近 28 天的總觀看裡，有幾成是廣告帶來的。', '占比高時，YouTube 後台的總觀看會「看起來很好」，要回來看自然觀看。'],
     '自然觀看': ['不靠廣告的觀看：觀眾自己搜到、被首頁推薦、或訂閱後來看。', '判斷內容好不好，一律看這個。'],
     '廣告觀看': ['付費投放（YouTube 廣告）帶來的觀看。', '是買來的量，投放停了就沒有。'],
+    '累計總觀看': ['這支片從上架到資料截止日的全部觀看次數，自然加廣告。', '看這支片目前累積多少量。下面小字是自然和廣告各多少；判斷內容好不好，還是看自然觀看和右邊的燈號。'],
     '前兩天自然': ['影片上架後前 2 天的自然觀看次數。', '主要是訂閱者和老觀眾，反映題材、標題、封面吸不吸引他們。'],
     '÷同期中位': ['前兩天的自然觀看，除以它之前 10 支同類影片「前兩天」的中位數。', '1＝跟平常一樣。≥1 綠燈＝既有觀眾買單；<0.5 紅燈＝題材或封面標題沒打中，上架一週內換最有效。'],
     '第 2→7 天成長': ['首 7 天自然觀看 ÷ 首 2 天自然觀看。', '看演算法有沒有把片推給新觀眾。>2.5 倍綠燈＝有擴散；<1.5 倍紅燈＝只有老觀眾在看。'],
@@ -891,6 +893,7 @@
       ['廣告占比', '總觀看裡有多少是廣告。占比高時，總觀看會「看起來很好」，要分開看。'],
       ['為什麼要分開', 'YouTube Studio 的總觀看把兩者混在一起；只看自然觀看，才知道內容本身的實力。資料落後 YouTube 約 3 天，每天 06:00 更新。']]),
     '新片檢查': dl([
+      ['累計總觀看', '這支片從上架到資料截止日的全部觀看（自然＋廣告），下面小字分開列。跟 YouTube 工作室的總觀看是同一個概念，但資料落後約 3 天，數字會比工作室少一點。'],
       ['前兩天 ÷ 同期中位', '上架前 2 天的自然觀看，除以前 10 支同類片同一階段的中位數。代表<b>既有觀眾買不買單</b>，主要看題材、標題、封面。&lt;0.5 紅、≥1 綠。'],
       ['第 2→7 天成長', '首 7 天 ÷ 首 2 天。代表<b>演算法有沒有推出去</b>。紅燈＝只有訂閱者看、沒擴散到新觀眾，常見原因是開頭留不住新觀眾。&lt;1.5 紅、&gt;2.5 綠。'],
       ['首 28 天 ÷ 同類中位', '最終成績，1＝普通、2＝同類平均的兩倍。&lt;0.5 紅、&gt;1.5 綠。'],

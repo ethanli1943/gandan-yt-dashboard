@@ -436,7 +436,9 @@
       '<h3 class="subh">做得好的對談</h3><p class="hint">倍數 1.5 以上、觀看 3,000 以上、沒有投流嫌疑、不是業配；一個頻道最多 2 支。</p><div id="podExamples"></div>' +
       '<h3 class="subh">甘丹自己的對談</h3><div class="scroll" id="podOwn"></div>' +
       '<h3 class="subh">甘丹各種拍法比一比</h3><p class="hint">甘丹還有流量的長片，照形式分組取中位數。同一個頻道、同一群觀眾，最能看出換成對談要付出多少代價。</p><div class="scroll" id="podOwnForms"></div></div>';
-    html += '<div class="section card"><div class="chart-head"><div><h2>影片帶來的諮詢（推估）</h2><p class="hint">把官網諮詢單對回影片，分三層：<b>確定</b>＝諮詢單帶影片追蹤碼；<b>時間推測</b>＝填單前 60 分鐘內有人點了那支影片的說明欄連結；<b>分攤</b>＝客戶自述「YouTube」但對不到點擊，依填單前 7 天各<b>長片</b>的自然觀看比例分攤（假設來諮詢的人是被長片說服的；Shorts 不分攤；是假設，不是事實）。樣本很少，看題材層級比看單支影片可靠。</p></div>' +
+    // 2026-10-13 Ethan 決定整區拿掉：目前「確定」「時間推測」都是 0，只剩照觀看比例分攤的假設值，參考性低。
+    // 資料仍每天計算；等官網外包商開通來源網址、有「確定」資料後，把 SHOW_CONV 改回 true 就會回來（成績單裡的推估諮詢也一起）。
+    if (SHOW_CONV) html += '<div class="section card"><div class="chart-head"><div><h2>影片帶來的諮詢（推估）</h2><p class="hint">把官網諮詢單對回影片，分三層：<b>確定</b>＝諮詢單帶影片追蹤碼；<b>時間推測</b>＝填單前 60 分鐘內有人點了那支影片的說明欄連結；<b>分攤</b>＝客戶自述「YouTube」但對不到點擊，依填單前 7 天各<b>長片</b>的自然觀看比例分攤（假設來諮詢的人是被長片說服的；Shorts 不分攤；是假設，不是事實）。樣本很少，看題材層級比看單支影片可靠。</p></div>' +
       '<div class="summary-chip" id="convSummary"></div></div><div class="scroll" id="convTopics"></div><div class="scroll" id="convVideos" style="margin-top:14px"></div></div>';
     html += '<div class="section card"><div class="chart-head"><div><h2>審片 vs 實際</h2><p class="hint">拍前在試算表「審片紀錄」分頁打分數（左邊欄位），程式每天算出判定，上片後自動接實際表現。實際優先用「首 28 天自然 ÷ 同類中位」，還沒滿 28 天就用手填的倍數；≥1 算達標。每季用這張表檢討審片門檻準不準。</p></div>' +
       '<div class="summary-chip" id="reviewSummary"></div></div><div class="scroll" id="reviews"></div></div>';
@@ -870,7 +872,7 @@
     if (!c) return '<div class="empty" style="padding:14px 6px 0">這支片沒有每日資料，暫時沒有成績單。</div>';
     var t = d.topics || {}, rv = ((d.reviews || {}).list || []).filter(function (x) { return x.id === id; })[0];
     var cv = (((d.conversions || {}).videos) || []).filter(function (x) { return x.id === id; })[0];
-    var diag = cardDiagnosis(c, { avgPctMed: (d.cardMeta || {}).avgPctMed, topics: t.topics, forms: t.forms, review: rv, conv: cv ? cv.total : null });
+    var diag = cardDiagnosis(c, { avgPctMed: (d.cardMeta || {}).avgPctMed, topics: t.topics, forms: t.forms, review: rv, conv: SHOW_CONV && cv ? cv.total : null });
     var kind = c.type === 'Shorts' ? 'Shorts' : '長片', med = ((d.cardMeta || {}).avgPctMed || {})[kind];
     function num(k, v, sub) { return '<div class="vnum"><div class="k">' + k + '</div><div class="v">' + v + '</div>' + (sub ? '<div class="s">' + sub + '</div>' : '') + '</div>'; }
     var s = c.src || {}, max = (s.top && s.top.length) ? s.top[0][1] : 1;
@@ -884,7 +886,7 @@
       num('平均觀看（近 28 天）', c.avgPct == null ? '—' : c.avgPct.toFixed(1) + '%', med ? '同類中位 ' + med.toFixed(1) + '%' : '') +
       num('訂閱增加（近 28 天）', c.subs == null ? '—' : fmt(c.subs), '讚 ' + fmt(c.likes) + '・留言 ' + fmt(c.comments) + '・分享 ' + fmt(c.shares)) +
       num('近 28 天自然觀看', fmt(s.organic), s.ads ? '另有廣告 ' + fmt(s.ads) : '沒有廣告') +
-      num('推估諮詢', cv ? (Math.round(cv.total * 10) / 10) : '—', '假設值，僅供參考') +
+      (SHOW_CONV ? num('推估諮詢', cv ? (Math.round(cv.total * 10) / 10) : '—', '假設值，僅供參考') : '') +
       '</div><h4>近 28 天自然流量來源</h4><div class="bars vsrc">' + (src || '<div class="empty">沒有資料</div>') + '</div></div></div>';
   }
   function bindCards(sel, d) {
@@ -979,7 +981,9 @@
   }
   /* ---- 影片帶來的諮詢（推估） ---- */
   function n2(x) { return x == null ? '—' : (Math.round(x * 10) / 10).toString(); }
+  var SHOW_CONV = false;
   function drawConversions(d) {
+    if (!$('#convSummary')) return;
     var c = d.conversions || { videos: [], topics: [], summary: {} }, s = c.summary || {};
     $('#convSummary').innerHTML = (c.videos || []).length || s.unmatched
       ? '近期自述 YouTube、對不到點擊的諮詢 <b>' + (s.allocated || 0) + '</b> 筆，已分攤給長片' + (s.unallocatable ? '（另有 ' + s.unallocatable + ' 筆早於有觀看資料的期間，不列入）' : '')

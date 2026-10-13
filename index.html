@@ -231,7 +231,7 @@
   .freq b { font-weight: 500; color: var(--ink-2); margin-right: 8px; padding: 1px 7px; border-radius: 99px; box-shadow: 0 0 0 1px var(--ring); white-space: nowrap; }
   tr.podme td { background: var(--surface); }
   .breakouts h3 { font-size: 15px; margin: 0 0 4px; }
-  .breakouts .excard { opacity: 1; transform: none; }
+  .breakouts .excard, #podExamples .excard { opacity: 1; transform: none; }
   .trend { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
   .trend.up { background: rgba(11,122,11,.10); color: var(--good); }
   .trend.down { background: rgba(194,52,52,.10); color: var(--bad); }
@@ -434,6 +434,8 @@
       '<div><h3 class="subh">標題寫法</h3><div class="scroll" id="podTitles"></div></div></div>' +
       '<h3 class="subh">誰在做對談</h3><div class="scroll" id="podChannels"></div>' +
       '<h3 class="subh">做得好的對談</h3><p class="hint">倍數 1.5 以上、觀看 3,000 以上、沒有投流嫌疑、不是業配；一個頻道最多 2 支。</p><div id="podExamples"></div>' +
+      '<h3 class="subh">停更或超過 12 個月的節目</h3><p class="hint">上面的統計只算近 12 個月，所以做過又停掉、或比較早期的節目不會出現。這裡另外人工收錄，'
+      + '是固定資料、不會自動更新，各列的擷取日寫在備註。倍數＝每集觀看中位 ÷ 該頻道平常長片的觀看中位。</p><div class="scroll" id="podArchive"></div>' +
       '<h3 class="subh">甘丹自己的對談</h3><div class="scroll" id="podOwn"></div>' +
       '<h3 class="subh">甘丹各種拍法比一比</h3><p class="hint">甘丹還有流量的長片，照形式分組取中位數。同一個頻道、同一群觀眾，最能看出換成對談要付出多少代價。</p><div class="scroll" id="podOwnForms"></div></div>';
     // 2026-10-13 Ethan 決定整區拿掉：目前「確定」「時間推測」都是 0，只剩照觀看比例分攤的假設值，參考性低。
@@ -666,6 +668,10 @@
     '前兩天自然': ['影片上架後前 2 天的自然觀看次數。', '主要是訂閱者和老觀眾，反映題材、標題、封面吸不吸引他們。'],
     '÷同期中位': ['前兩天的自然觀看，除以它之前 10 支同類影片「前兩天」的中位數。', '1＝跟平常一樣。≥1 綠燈＝既有觀眾買單；<0.5 紅燈＝題材或封面標題沒打中，上架一週內換最有效。'],
     '第 2→7 天成長': ['首 7 天自然觀看 ÷ 首 2 天自然觀看。', '看演算法有沒有把片推給新觀眾。>2.5 倍綠燈＝有擴散；<1.5 倍紅燈＝只有老觀眾在看。'],
+    '集數': ['這個節目總共上了幾集。', '集數多但每集觀看低，代表不是「做久了就會起來」。'],
+    '每集觀看中位': ['這個節目所有集數觀看次數的中位數。', '下面小字是最少到最多。'],
+    '平常長片中位': ['同一個頻道、不是這個節目的長片，觀看次數的中位數。', '拿來當這個頻道「平常水準」的基準。'],
+    '節目': ['頻道名稱與節目名稱，點了會開 YouTube 播放清單。', '這張表是人工收錄的固定資料。'],
     '支數': ['這一列統計到幾支影片。', '少於 5 支會標「樣本少」，只能當個案參考。'],
     '倍數中位': ['這一組影片「倍數」的中位數。倍數＝觀看 ÷ 該頻道平常長片的中位數。', '1＝跟頻道平常一樣；低於 1 代表這樣拍通常比該頻道平常差。'],
     '範圍': ['這一列統計的是哪一群對談影片。', '對談的樣本集中在少數頻道，「扣掉最大頻道」和「設計公司自己做的」比「全部對談」更接近甘丹的處境。'],
@@ -953,6 +959,7 @@
       ['範圍三列', '「全部對談」會被對談做最多的頻道主導；「扣掉最大頻道」看其他人的普遍狀況；「設計公司自己做的」跟甘丹最像。'],
       ['聊什麼題材', '同樣是對談，聊的題材不同差很多。「集中度」寫出是不是只有一個頻道在做。'],
       ['片長、標題寫法', '片長分四段；標題看有沒有點名來賓（ft.、專訪等）、是不是用集數開頭。'],
+      ['停更或超過 12 個月的節目', '上面的統計只算近 12 個月。做過又停掉的節目（例如張馨的「請聽，張馨說」）另外收在這張表，是固定資料，不會每週更新。'],
       ['甘丹各種拍法比一比', '同一個頻道裡，對談跟口播、作品開箱的三個階段指標中位數。對談那一列有底色。'],
       ['限制', '形式與題材是看標題分的；競品的留存與點閱率拿不到；只看 YouTube，不含 Apple Podcast、Spotify 的收聽。']]),
     '影片帶來的諮詢（推估）': dl([
@@ -1033,6 +1040,15 @@
     var ex = P.examples || [];
     $('#podExamples').innerHTML = ex.length ? exampleCards(ex.map(function (v) { return Object.assign({}, v, { form: v.topic || '' }); })) : '<div class="empty">目前沒有符合條件的案例。</div>';
     $('#podExamples').querySelectorAll('img[data-src]').forEach(function (im) { im.src = im.getAttribute('data-src'); im.removeAttribute('data-src'); });
+    var ar = P.archive || [];
+    $('#podArchive').innerHTML = ar.length ? '<table><thead><tr><th>節目</th><th class="num">集數</th><th class="num">每集觀看中位</th><th class="num">平常長片中位</th><th class="num">倍數</th><th>備註</th></tr></thead><tbody>' +
+      ar.map(function (x) {
+        return '<tr><td><a class="ttl" href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.channel) + '｜' + esc(x.show) + ' ↗</a>' +
+          '<div class="sub2">' + (x.subs ? '訂閱 ' + (x.subs / 10000).toFixed(1) + ' 萬・' : '') + esc(x.from) + ' 到 ' + esc(x.to) + (x.minutes ? '・每集約 ' + x.minutes + ' 分' : '') + '</div></td>' +
+          '<td class="num">' + fmt(x.episodes) + '</td><td class="num">' + fmt(x.medianViews) + (x.minViews != null ? '<div class="sub2">' + fmt(x.minViews) + '–' + fmt(x.maxViews) + '</div>' : '') + '</td>' +
+          '<td class="num">' + fmt(x.baseMedian) + '</td><td class="num">' + light(x.multiple, 0.5, 1) + '</td>' +
+          '<td class="verdict">' + esc((x.status ? x.status + '。' : '') + (x.note || '')) + '<div class="sub2">擷取日 ' + esc(x.fetched) + '</div></td></tr>';
+      }).join('') + '</tbody></table>' : '<div class="empty">目前沒有收錄。</div>';
     var own = P.own || [];
     $('#podOwn').innerHTML = own.length ? '<table><thead><tr><th>影片</th><th class="num">累計總觀看</th><th class="num">÷同期中位</th><th class="num">第 2→7 天成長</th><th class="num">首 28 天÷同類</th></tr></thead><tbody>' +
       own.map(function (v) {

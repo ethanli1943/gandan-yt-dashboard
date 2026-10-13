@@ -230,6 +230,7 @@
   .freq { font-size: 12px; color: var(--muted); margin: -6px 0 14px; line-height: 1.55; }
   .freq b { font-weight: 500; color: var(--ink-2); margin-right: 8px; padding: 1px 7px; border-radius: 99px; box-shadow: 0 0 0 1px var(--ring); white-space: nowrap; }
   tr.podme td { background: var(--surface); }
+  .adswarn { font-size: 13px; margin: 0 0 12px; padding: 9px 12px; border-radius: 10px; background: var(--surface); box-shadow: 0 0 0 1px var(--ring); color: var(--ink-2); }
   .breakouts h3 { font-size: 15px; margin: 0 0 4px; }
   .breakouts .excard, #podExamples .excard { opacity: 1; transform: none; }
   .trend { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
@@ -413,6 +414,12 @@
       '<div class="scroll" id="rank"></div></div>';
 
     html += '<div class="section card"><h2>投放中的影片：自然 vs 廣告</h2><p class="hint">近 28 天有廣告觀看的影片。藍色是自然、橘色是廣告；廣告多但自然少，代表投放還沒帶動演算法推薦。</p><div class="bars" id="paid"></div></div>';
+    html += '<div class="section card"><div class="chart-head"><div><h2>廣告投放（鈞播週報）</h2><p class="hint" id="adsHint"></p></div></div>' +
+      '<div id="adsWarn"></div><div class="scroll" id="adsNow"></div>' +
+      '<h3 class="subh">每月成效</h3><div class="scroll" id="adsMonths"></div>' +
+      '<h3 class="subh">本月 YouTube 各支廣告</h3><div class="scroll" id="adsVideos"></div>' +
+      '<h3 class="subh">YouTube 廣告打到誰（年齡）</h3><div class="scroll" id="adsAges"></div><p class="hint" id="adsAgeNote" style="margin-top:8px"></p>' +
+      '<h3 class="subh">跟 YouTube 後台的數字對一下</h3><p class="hint" id="adsRecon" style="margin-bottom:0"></p></div>';
     html += '<div class="section card"><div class="chart-head"><div><h2>市場題材地圖</h2><p class="hint" id="topicHint"></p></div>' +
       '<div class="seg" id="topicSeg" aria-label="分類"><button class="on" data-k="topics">題材</button><button data-k="forms">形式</button></div></div>' +
       '<details class="rules"><summary>案例影片怎麼挑的（點題材那一列就會展開）</summary><ol>' +
@@ -450,7 +457,7 @@
     document.querySelectorAll('[data-pct]').forEach(function (el) { countUp(el, +el.getAttribute('data-pct'), { pct: true }); });
     var st = { t: '全部', w: '28' };
     drawLine(d); drawDayTable(d); drawSources(d); drawCands(d); drawRank(d, st.t, st.w); drawPaid(d);
-    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawBreakouts(d); drawPodcast(d); drawReviews(d); drawConversions(d); addHelp(); addFreq(); bindCards('#launch', d); bindCards('#rank', d); initGloss(); annotate();
+    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawBreakouts(d); drawPodcast(d); drawAds(d); drawReviews(d); drawConversions(d); addHelp(); addFreq(); bindCards('#launch', d); bindCards('#rank', d); initGloss(); annotate();
     function segClick(sel, attr, after) {
       $(sel).addEventListener('click', function (e) {
         var b = e.target.closest('button'); if (!b) return;
@@ -672,6 +679,29 @@
     '每集觀看中位': ['這個節目所有集數觀看次數的中位數。', '下面小字是最少到最多。'],
     '平常長片中位': ['同一個頻道、不是這個節目的長片，觀看次數的中位數。', '拿來當這個頻道「平常水準」的基準。'],
     '節目': ['頻道名稱與節目名稱，點了會開 YouTube 播放清單。', '這張表是人工收錄的固定資料。'],
+    '預算': ['這個月跟鈞播約定的廣告預算。', '來自鈞播報表。'],
+    '已花費': ['這個月到報表日為止實際花掉的廣告費。', '跟預算比，看花費進度。'],
+    '觀看次數': ['鈞播報表上的廣告觀看次數，也是計費的依據。', '跟 YouTube 後台的「廣告觀看」算法不同，數字不會一樣。'],
+    '保證觀看': ['鈞播這個月保證做到的廣告觀看次數。', '跟實際觀看比，就是達成率。'],
+    '達成率': ['實際觀看 ÷ 保證觀看。', '月中看到一半左右算正常進度。'],
+    '觀看率': ['觀看次數 ÷ 曝光次數。', '看到廣告的人裡，有多少比例真的看了；越高代表素材越吸引人。'],
+    '每次觀看成本': ['花費 ÷ 觀看次數。', '買到一次廣告觀看平均花多少錢。'],
+    '本月 YouTube 廣告': ['YouTube 影片廣告這個月的整體成績。', '下面小字是報表做到哪一天。'],
+    '月份': ['統計的月份。', '最新的月份還沒過完，數字會繼續增加。'],
+    'YT 花費': ['這個月 YouTube 影片廣告花的錢。', '來自鈞播報表。'],
+    'YT 觀看': ['這個月 YouTube 影片廣告買到的觀看次數（鈞播報表的算法）。', '是買來的量，不代表內容本身的吸引力。'],
+    'YT 觀看率': ['YouTube 廣告的觀看次數 ÷ 曝光次數。', '越高代表素材越吸引人。'],
+    'FB 表單花費': ['FB／IG「表單廣告」花的錢。表單廣告是讓人直接在 FB 留資料的廣告。', '2026-09-18 之後鈞播改投曝光廣告，所以之後是空的。'],
+    '填單': ['表單廣告帶來幾筆留資料的名單。', '這是真的名單數，不是推估。'],
+    '每筆填單成本': ['FB 表單花費 ÷ 填單數。', '拿到一筆名單平均花多少廣告費。'],
+    'FB 曝光花費': ['FB／IG「曝光廣告」花的錢。曝光廣告的目的是讓更多人看到，不是收名單。', '2026-09-18 開始投。'],
+    'FB 觸及': ['曝光廣告觸及的人數（每天加總，同一個人不同天會重複算）。', '看廣告讓多少人看到甘丹。'],
+    '廣告名稱': ['鈞播後台的廣告名稱，通常就是拿來投放的那支影片。', '比較哪支影片當廣告素材效果好。'],
+    '曝光次數': ['廣告被顯示的次數。', '顯示不代表有看。'],
+    '花費金額': ['這支廣告這個月花的錢。', '來自鈞播報表。'],
+    '年齡': ['看到廣告的人的年齡層，是 Google 依行為推估的。', '跟甘丹的目標客群 30–45 歲對照。'],
+    '曝光占比': ['這個年齡層占全部廣告曝光的比例。', '看廣告預算主要花在哪個年齡層。'],
+    '觀看占比': ['這個年齡層占全部廣告觀看的比例。', '跟曝光占比一起看。'],
     '支數': ['這一列統計到幾支影片。', '少於 5 支會標「樣本少」，只能當個案參考。'],
     '倍數中位': ['這一組影片「倍數」的中位數。倍數＝觀看 ÷ 該頻道平常長片的中位數。', '1＝跟頻道平常一樣；低於 1 代表這樣拍通常比該頻道平常差。'],
     '範圍': ['這一列統計的是哪一群對談影片。', '對談的樣本集中在少數頻道，「扣掉最大頻道」和「設計公司自己做的」比「全部對談」更接近甘丹的處境。'],
@@ -953,6 +983,14 @@
       ['近 90 天熱度', '最近 90 天這個題材比 12 個月平均是升溫還是降溫（已扣掉「新片整體偏高」）：指數 ≥1.15 且近期至少 2 個頻道爆過＝升溫，≤0.85＝降溫；近期不到 8 支＝樣本少。<b>長期強＋升溫＝現在最值得拍</b>；弱但升溫＝先觀察。'],
       ['甘丹倍數中位', '甘丹自己拍這類題材的成績（同一套算法）；「沒拍過」＝可能是空位。'],
       ['形式', '切到「形式」看口播、作品開箱、對談等拍法的表現；評級只做題材。']]),
+    '廣告投放（鈞播週報）': dl([
+      ['資料從哪來', '廣告代理商鈞播（Jinbo）每週寄到公司信箱的「廣告成效週報」附件。數據中心每天自動檢查信箱，有新的一期就讀進來。'],
+      ['本月 YouTube 廣告', '預算、已花費、觀看次數、保證觀看與達成率。報表通常到寄出前一天。'],
+      ['每月成效', 'YouTube 廣告、FB 表單廣告（收名單）、FB 曝光廣告（讓更多人看到）各自的花費與成果。'],
+      ['填單與每筆填單成本', '填單是 FB 表單廣告實際收到的名單數；每筆成本＝花費 ÷ 填單數。'],
+      ['年齡', '廣告實際被哪個年齡層看到。有底色的兩列是最接近甘丹目標客群（30–45 歲）的級距。'],
+      ['跟 YouTube 後台對一下', '鈞播報表的「觀看」和 YouTube 後台的「廣告觀看」算法不同，付費照鈞播的算。兩個數字不要混用。'],
+      ['金額單位', '新台幣。']]),
     'Podcast／對談影片地圖': dl([
       ['看什麼', '甘丹要做 Podcast／對談節目之前，先看同業做對談的成績，以及甘丹自己做對談跟做口播、開箱差多少。'],
       ['倍數中位', '跟該頻道自己平常的長片比。0.6＝對談片通常只有該頻道平常的六成觀看。'],
@@ -1012,6 +1050,56 @@
     if (!r) return '<span class="ratio mid">未打分</span>';
     var cls = r === '對' ? 'hi' : r.indexOf('錯') === 0 ? 'lo' : 'mid';
     return '<span class="ratio ' + cls + '">' + esc(r) + '</span>';
+  }
+  /* ---- 廣告投放（鈞播週報） ---- */
+  function drawAds(d) {
+    var A = d.ads || { empty: true }, last = A.last || null;
+    if (!$('#adsHint')) return;
+    var money = function (x) { return x == null ? '—' : '$' + fmt(Math.round(x)); };
+    var pct = function (a, b, dg) { return b ? (100 * a / b).toFixed(dg == null ? 1 : dg) + '%' : '—'; };
+    var per = function (a, b, dg) { return b ? '$' + (a / b).toFixed(dg == null ? 2 : dg) : '—'; };
+    $('#adsHint').textContent = '廣告代理商鈞播（Jinbo）每週寄來的廣告成效週報，包含 YouTube 影片廣告與 FB／IG 廣告的曝光、觀看、填單與花費。' +
+      '這裡的數字是鈞播報表上的；跟上面用 YouTube 後台算的「廣告觀看」算法不同，最下面有對照。' + (last && last.mailDate ? '最新一期的來信時間 ' + last.mailDate + '。' : '');
+    var warn = '';
+    if (last && last.result === '失敗') warn += '<div class="adswarn">最近一次讀信失敗（' + esc(last.time) + '）：' + esc(last.message) + '</div>';
+    if (last && last.mailDate) {
+      var gap = Math.floor((Date.now() - new Date(last.mailDate.slice(0, 10) + 'T00:00:00').getTime()) / 86400000);
+      if (gap > 10) warn += '<div class="adswarn">已經 ' + gap + ' 天沒有收到新的週報，下面是 ' + esc(last.mailDate.slice(0, 10)) + ' 那一期的數字。</div>';
+    }
+    $('#adsWarn').innerHTML = warn;
+    if (A.empty) {
+      ['adsMonths', 'adsVideos', 'adsAges'].forEach(function (id) { $('#' + id).innerHTML = '<div class="empty">還沒有資料。</div>'; });
+      $('#adsAgeNote').textContent = ''; $('#adsRecon').textContent = '還沒有資料。';
+      $('#adsNow').innerHTML = '<div class="empty">還沒有資料。要先到「甘丹廣告週報讀信」那個 Apps Script 專案執行一次 setupAdsReader 並授權讀信，之後每天 08:00 會自動檢查信箱。</div>';
+      return;
+    }
+    var c = A.cur;
+    $('#adsNow').innerHTML = c ? '<table><thead><tr><th>本月 YouTube 廣告</th><th class="num">預算</th><th class="num">已花費</th><th class="num">觀看次數</th><th class="num">保證觀看</th><th class="num">達成率</th><th class="num">觀看率</th><th class="num">每次觀看成本</th></tr></thead><tbody>' +
+      '<tr><td><b style="font-weight:500">' + esc(c.month) + '</b><div class="sub2">報表到 ' + esc(c.through) + (c.period ? '・走期 ' + esc(c.period) : '') + '</div></td>' +
+      '<td class="num">' + money(c.budget) + '</td><td class="num">' + money(c.cost) + '</td><td class="num">' + fmt(c.views) + '</td><td class="num">' + (c.guarantee ? fmt(c.guarantee) : '—') + '</td>' +
+      '<td class="num">' + (c.guarantee ? pct(c.views, c.guarantee) : '—') + '</td><td class="num">' + pct(c.views, c.imp) + '</td><td class="num">' + per(c.cost, c.views) + '</td></tr></tbody></table>' : '';
+    $('#adsMonths').innerHTML = '<table><thead><tr><th>月份</th><th class="num">YT 花費</th><th class="num">YT 觀看</th><th class="num">YT 觀看率</th><th class="num">FB 表單花費</th><th class="num">填單</th><th class="num">每筆填單成本</th><th class="num">FB 曝光花費</th><th class="num">FB 觸及</th></tr></thead><tbody>' +
+      (A.months || []).map(function (m) {
+        var z = function (v, s) { return v ? s : '—'; };
+        return '<tr><td><b style="font-weight:500">' + esc(m.month) + '</b></td><td class="num">' + z(m.ytCost, money(m.ytCost)) + '</td><td class="num">' + z(m.ytViews, fmt(m.ytViews)) + '</td><td class="num">' + pct(m.ytViews, m.ytImp) + '</td>' +
+          '<td class="num">' + z(m.formCost, money(m.formCost)) + '</td><td class="num">' + (m.formCost ? fmt(m.forms) : '—') + '</td><td class="num">' + (m.forms ? money(m.formCost / m.forms) : '—') + '</td>' +
+          '<td class="num">' + z(m.reachCost, money(m.reachCost)) + '</td><td class="num">' + z(m.reach, fmt(m.reach)) + '</td></tr>';
+      }).join('') + '</tbody></table>';
+    $('#adsVideos').innerHTML = c && c.ads.length ? '<table><thead><tr><th>廣告名稱</th><th class="num">曝光次數</th><th class="num">觀看次數</th><th class="num">觀看率</th><th class="num">花費金額</th></tr></thead><tbody>' +
+      c.ads.map(function (a) { return '<tr><td>' + esc(a.name) + '</td><td class="num">' + fmt(a.imp) + '</td><td class="num">' + fmt(a.views) + '</td><td class="num">' + pct(a.views, a.imp) + '</td><td class="num">' + money(a.cost) + '</td></tr>'; }).join('') +
+      '</tbody></table>' : '<div class="empty">這個月還沒有資料。</div>';
+    var g = A.ages;
+    $('#adsAges').innerHTML = g ? '<table><thead><tr><th>年齡</th><th class="num">曝光占比</th><th class="num">觀看占比</th></tr></thead><tbody>' +
+      g.rows.map(function (x) {
+        var ta = x.name === '25-34歲' || x.name === '35-44歲';
+        return '<tr' + (ta ? ' class="podme"' : '') + '><td>' + esc(x.name) + (ta ? '<span class="tag" style="margin-left:6px">目標客群</span>' : '') + '</td>' +
+          '<td class="num">' + (x.impShare == null ? '—' : x.impShare + '%') + '</td><td class="num">' + (x.viewShare == null ? '—' : x.viewShare + '%') + '</td></tr>';
+      }).join('') + '</tbody></table>' : '<div class="empty">還沒有資料。</div>';
+    $('#adsAgeNote').textContent = g ? g.month + '：甘丹的目標客群是 30–45 歲，報表上最接近的 25–44 歲合計占曝光 ' + g.taImpShare + '%、觀看 ' + g.taViewShare + '%。年齡是 Google 推估的，不是實際登記的資料。' : '';
+    var r = A.recon;
+    $('#adsRecon').textContent = r ? '同樣 ' + r.days + ' 天（' + r.from + ' 到 ' + r.to + '）：鈞播報表的觀看 ' + fmt(r.jinboViews) + ' 次、曝光 ' + fmt(r.jinboImp) + ' 次；YouTube 後台的廣告觀看 ' + fmt(r.ytAds) + ' 次' +
+      (r.jinboViews ? '，是鈞播觀看的 ' + (r.ytAds / r.jinboViews).toFixed(2) + ' 倍' : '') + '。兩邊算「一次觀看」的方式不同，付費是照鈞播報表的觀看計算；差距的原因還在跟鈞播確認，先不要把兩個數字混著用。'
+      : '兩邊重疊的天數還不夠，暫時不能對照。';
   }
   /* ---- Podcast／對談影片地圖 ---- */
   function drawPodcast(d) {
@@ -1078,6 +1166,7 @@
     '投放中的影片：自然 vs 廣告': FREQ_DAILY,
     '市場題材地圖': '每週一 07:00 自動更新競品的觀看、倍數、評級與熱度。新上架的競品影片要等每月 1 號分好題材，才會算進來。',
     '近 60 天新爆片': '每週一 07:00 自動換新。只列已經分好題材的片，所以每月 1 號分類之後才上架的新片，要等下個月 1 號才會出現。',
+    '廣告投放（鈞播週報）': '鈞播通常每週二傍晚寄出週報（偶爾週三、週四），內容到寄出前一天為止。數據中心每天 08:00 檢查信箱，收到新的一期就自動匯入。',
     'Podcast／對談影片地圖': '市場的部分每週一 07:00 跟題材地圖一起更新（新片同樣要等每月 1 號分類）；甘丹自己的兩張表每天 06:00 更新。',
     '影片帶來的諮詢（推估）': '每天 06:00 自動更新，讀「影片來源追蹤」試算表當下的諮詢紀錄。',
     '審片 vs 實際': '每天 06:00 自動更新；拍前分數要人工填進試算表「審片紀錄」分頁。'

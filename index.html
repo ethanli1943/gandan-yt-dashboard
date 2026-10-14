@@ -701,6 +701,7 @@
     'FB 貼文': ['FB 粉專的貼文，點標題會開 FB。', '下面小字是發布日（台灣時間）與類型。'],
     '÷中位': ['這篇的自然觀看 ÷ 近 60 天 FB 貼文自然觀看的中位數。', '1＝跟平常一樣。'],
     '點擊': ['貼文任何地方被點的次數。', '點擊多代表內容讓人想看更多。'],
+    '所有點擊': ['貼文任何地方被點的次數，包含點開相片、播放影片，<b>不是</b>連結點擊（Business Suite 的「連結點擊次數」通常小很多）。', '點擊多代表內容讓人想看更多。'],
     '心情': ['按讚、大心等所有心情的總數。', '最基本的互動。'],
     '3秒影片觀看': ['影片被看超過 3 秒的次數。', '只有影片貼文才有。'],
     '預算': ['這個月跟鈞播約定的廣告預算。', '來自鈞播報表。'],
@@ -1010,7 +1011,8 @@
     'IG 與 FB': dl([
       ['資料從哪來', 'Meta 官方洞察 API，用 Wing 帳號授權的粉專權杖每天自動抓（權杖不會過期，但 Wing 改密碼或移除授權就要重做）。'],
       ['上週表', 'IG 與 FB 各項上週合計，跟前 8 個完整週的中位數比。'],
-      ['IG 數字只算自然', 'IG 貼文的觀看、讚、留言只算自然，不含加強推廣；帳號層的觸及與互動則含廣告。'],
+      ['IG 有沒有含廣告', 'Meta 說明：IG 貼文的觀看、讚、留言只算自然；帳號層的觸及與互動含廣告。甘丹 IG 近 50 則都沒加強推廣過（2026-10-14 查），所以這點<b>還沒實測</b>，第一次投 IG 時要再對一次。'],
+      ['跟 Business Suite 對帳', '2026-10-14 挑 3 篇貼文＋近 28 天帳號數字對過：觀看、分享、儲存、3 秒觀看一致；觸及差 1% 內（Meta 估計值）；FB 心情數差 1–2；FB「所有點擊」含點開相片和播放，不等於後台的連結點擊。IG 觸及改用整週不重複人數，才對得上後台。'],
       ['FB 粉專觀看被廣告灌水', '鈞播的 FB 廣告多半是另做素材，貼文層幾乎沒有廣告觀看，但粉專層的觀看大部分來自廣告，所以分成自然與廣告兩列看。'],
       ['IG 近 60 天內容', 'Reels 跟 Reels 比、貼文跟貼文比；3 秒滑掉率與平均觀看秒只有 Reels 有。'],
       ['限制', '限時動態只保留 24 小時，沒有追；競品的 IG、FB 拿不到後台數字，沒有做。']]),
@@ -1088,7 +1090,8 @@
     if (!$('#socHint')) return;
     $('#socHint').textContent = '甘丹 IG（@gandandesign）與 FB 粉專的每日數字，從 Meta 官方洞察 API 自動抓。週＝週一到週日；燈號比的是前 8 個完整週的中位數。' +
       'Meta 的「一天」是美西時間，跟台灣差 15–16 小時。資料最多落後 2 天' + (S.through ? '（IG 到 ' + (S.through.ig || '—') + '、FB 到 ' + (S.through.fb || '—') + '）' : '') + '。';
-    $('#socWarn').innerHTML = st.result === '失敗' ? '<div class="adswarn">最近一次抓取失敗（' + esc(st.last) + '）：' + esc(st.message) + '。權杖可能失效，請 Ethan 重跑 tools/meta-auth.py。</div>' : '';
+    var reachNote = S.igReachUnique === false ? '<div class="adswarn">有幾週還沒有整週的 IG 不重複觸及，暫用每日加總（會偏高）；補抓一次就好（python tools/meta-setup.py pull 63）。</div>' : '';
+    $('#socWarn').innerHTML = reachNote + (st.result === '失敗' ? '<div class="adswarn">最近一次抓取失敗（' + esc(st.last) + '）：' + esc(st.message) + '。權杖可能失效，請 Ethan 重跑 tools/meta-auth.py。</div>' : '');
     if (S.empty) { $('#socKpi').innerHTML = '<div class="empty">還沒有資料。</div>'; $('#socIg').innerHTML = ''; $('#socFb').innerHTML = ''; return; }
     var lastWeek = (S.igWeeks || []).slice(-1)[0] || {};
     function row(label, k, unit) {
@@ -1112,7 +1115,7 @@
           '<td class="num">' + (x.avgSec == null ? '—' : x.avgSec) + '</td><td class="num">' + fmt(x.saved) + '</td><td class="num">' + fmt(x.shares) + '</td></tr>';
       }).join('') + '</tbody></table>' : '<div class="empty">近 60 天沒有 IG 內容。</div>';
     var fb = S.fb || [];
-    $('#socFb').innerHTML = fb.length ? '<table><thead><tr><th>FB 貼文</th><th class="num">自然觀看</th><th class="num">÷中位</th><th class="num">廣告觀看</th><th class="num">點擊</th><th class="num">心情</th><th class="num">3秒影片觀看</th></tr></thead><tbody>' +
+    $('#socFb').innerHTML = fb.length ? '<table><thead><tr><th>FB 貼文</th><th class="num">自然觀看</th><th class="num">÷中位</th><th class="num">廣告觀看</th><th class="num">所有點擊</th><th class="num">心情</th><th class="num">3秒影片觀看</th></tr></thead><tbody>' +
       fb.map(function (x) {
         return '<tr><td><a class="ttl" href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title || '（沒有文字）') + ' ↗</a><div class="sub2">' + esc(x.pub) + '<span class="tag">' + esc(x.type) + '</span></div></td>' +
           '<td class="num">' + fmt(x.organic) + '</td><td class="num">' + light(x.ratio, 0.5, 1.5) + '</td><td class="num">' + fmt(x.ads) + '</td><td class="num">' + fmt(x.clicks) + '</td>' +

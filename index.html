@@ -465,7 +465,7 @@
       '<div class="subrow"><h3 class="subh">每天觀看</h3><div class="seg" id="fbTrendSeg" aria-label="指標"><button class="on" data-k="organic">自然</button><button data-k="ads">廣告</button></div></div>' +
       '<p class="hint">近 60 天。自然和廣告差了好幾十倍，所以分開畫、各用自己的刻度。滑過圖表看每天的數字。</p><div class="line-wrap" id="fbTrend"></div>' +
       '<h3 class="subh">投流候選</h3><p class="hint">沒投過廣告、自然觀看是近 60 天中位數 1.5 倍以上、發布滿 3 天的貼文，最多 5 篇。系統只提名，要不要投由行銷部決定。</p><div id="fbCands"></div>' +
-      '<div class="subrow"><h3 class="subh">FB 近 60 天貼文</h3><div class="seg" id="fbSort" aria-label="排序"><button class="on" data-k="new">最新</button><button data-k="rank">自然排行</button></div></div><p class="hint">最多列 15 篇。鈞播的 FB 廣告多半是另做的素材，不會出現在這裡，但會灌進上面的「粉專觀看」。</p><div class="scroll" id="socFb"></div></div></div>';
+      '<div class="subrow"><h3 class="subh">FB 近 60 天貼文</h3><div class="seg" id="fbSort" aria-label="排序"><button class="on" data-k="new">最新</button><button data-k="rank">自然排行</button></div></div><p class="hint">最多列 15 篇。鈞播的曝光廣告是拿粉專已發的貼文去投（2026-09-18 起是 8/23「貓貓的家」與 8/7「極簡北歐宅」），那幾篇的「廣告觀看」會很大；8/7 那篇超過 60 天，不在這張表。</p><div class="scroll" id="socFb"></div></div></div>';
     html += '<div class="pane" data-pane="ig"><div class="section card"><div class="chart-head"><div><h2>Instagram</h2><p class="hint" id="socHintIg"></p></div></div>' +
       '<div id="socWarnIg"></div><div class="scroll" id="socKpiIg"></div>' +
       '<div class="subrow"><h3 class="subh">每天</h3><div class="seg" id="igTrendSeg" aria-label="指標"><button class="on" data-k="views">觀看</button><button data-k="pv">主頁瀏覽</button><button data-k="web">官網點擊</button><button data-k="follow">追蹤增減</button></div></div>' +
@@ -1092,7 +1092,7 @@
       ['資料從哪來', 'Meta 官方洞察 API，用 Wing 帳號授權的粉專權杖每天自動抓（權杖不會過期，但 Wing 改密碼或移除授權就要重做）。'],
       ['上週表', '各項上週合計，跟前 8 個完整週的中位數比。'],
       ['跟 Business Suite 對帳', '2026-10-14 挑 3 篇貼文＋近 28 天帳號數字對過：觀看、分享、儲存、3 秒觀看一致；觸及差 1% 內（Meta 估計值）；FB 心情數差 1–2；FB「所有點擊」含點開相片和播放，不等於後台的連結點擊。IG 觸及改用整週不重複人數，才對得上後台。'],
-      ['FB 粉專觀看被廣告灌水', '鈞播的 FB 廣告多半是另做素材，貼文層幾乎沒有廣告觀看，但粉專層的觀看大部分來自廣告，所以分成自然與廣告兩列看。'],
+      ['FB 粉專觀看被廣告灌水', '鈞播的曝光廣告是拿粉專已發的貼文去投（2026-09-18 起只投 2 篇舊貼文），所以粉專層的觀看大部分來自廣告，分成自然與廣告兩列看；被投的那幾篇貼文，表裡的「廣告觀看」也會特別大。'],
       ['限制', '限時動態只保留 24 小時，沒有追；競品的 IG、FB 拿不到後台數字，沒有做。']]),
     'Instagram': dl([
       ['資料從哪來', 'Meta 官方洞察 API，用 Wing 帳號授權的粉專權杖每天自動抓（權杖不會過期，但 Wing 改密碼或移除授權就要重做）。'],

@@ -6,7 +6,7 @@
 <meta name="referrer" content="no-referrer">
 <base target="_top">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>甘丹數據中心｜YouTube</title>
+<title>甘丹數據中心</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -77,6 +77,33 @@
   .card.in { opacity: 1; transform: none; }
   .card:hover { box-shadow: 0 2px 4px rgba(31,29,26,.05), 0 14px 34px rgba(31,29,26,.09), 0 0 0 1px var(--ring); }
   .section { margin-top: 16px; }
+  /* 平台標籤（2026-10-14 Ethan：切標籤看 YT／FB／IG；平台色只放在標籤的色點與底線，文字維持墨色） */
+  [hidden] { display: none !important; }
+  .tabs { display: flex; gap: 4px; margin: 18px 0 2px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--grid); -webkit-overflow-scrolling: touch; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { --pc: var(--ink-2); flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px 9px; border: 0; background: none; color: var(--ink-2);
+    font: inherit; font-size: 14px; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; border-radius: 8px 8px 0 0; }
+  .tab:hover { background: var(--surface); color: var(--ink); }
+  .tab:focus-visible { outline: 2px solid var(--pc); outline-offset: -2px; }
+  .tab .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--pc); opacity: .8; }
+  .tab[aria-selected="true"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--pc); }
+  .tab[aria-selected="true"] .dot { opacity: 1; }
+  .tab[data-k="yt"] { --pc: #ff0033; }
+  .tab[data-k="fb"] { --pc: #0866ff; }
+  .tab[data-k="ig"] { --pc: #e1306c; }
+  .tab[data-k="ig"] .dot { background: linear-gradient(45deg, #f58529, #dd2a7b 55%, #8134af); }
+  .pdot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; vertical-align: 1px; }
+  .pdot.yt { background: #ff0033; } .pdot.fb { background: #0866ff; } .pdot.ig { background: linear-gradient(45deg, #f58529, #dd2a7b 55%, #8134af); }
+  .golink { border: 0; background: none; color: var(--organic); font: inherit; font-size: 13px; cursor: pointer; padding: 0; }
+  .golink:hover { text-decoration: underline; }
+  .homegrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 760px) { .homegrid { grid-template-columns: 1fr; } }
+  .hcard { border: 1px solid var(--grid); border-radius: 14px; padding: 14px 16px 6px; background: var(--card); }
+  .hhead { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin-bottom: 6px; }
+  .hhead b { font-size: 15px; } .hhead .hper { color: var(--muted); font-size: 12px; } .hhead .golink { margin-left: auto; }
+  .hrow { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 2px 10px; padding: 10px 0; border-top: 1px solid var(--grid); }
+  .hrow .hlab { color: var(--ink-2); font-size: 13px; } .hrow .hval { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+  .hrow .hcmp { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
   .card h2 { font-size: 15px; font-weight: 700; margin: 0 0 4px; letter-spacing: .01em; }
   .card .hint { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; line-height: 1.55; }
   .label { font-size: 13px; color: var(--ink-2); }
@@ -286,8 +313,8 @@
     <div class="brand">
       <div class="logo">甘</div>
       <div>
-        <h1>甘丹數據中心 · YouTube</h1>
-        <div class="sub">自然流量優先：扣掉 YouTube 廣告來源後，影片自己帶來多少觀看</div>
+        <h1>甘丹數據中心</h1>
+        <div class="sub">YouTube、Facebook、Instagram 的流量，自然優先：扣掉廣告後，內容自己帶來多少觀看</div>
       </div>
     </div>
     <div class="chips">
@@ -385,6 +412,11 @@
     $('#through').textContent = '資料到 ' + d.through + '（YouTube 約落後 3 天）';
     var html = staleBanner(d);
     html += '<p class="gloss-hint">ⓘ 有<span class="demo">虛線底線</span>的名詞，把滑鼠移上去（手機請點一下）就會出現白話解釋。</p>';
+    html += '<div class="tabs" role="tablist" aria-label="切換平台">' + TABS.map(function (t) {
+      return '<button class="tab" role="tab" type="button" data-k="' + t[0] + '" aria-selected="false"><span class="dot" aria-hidden="true"></span>' + t[1] + '</button>'; }).join('') + '</div>';
+    html += '<div class="pane" data-pane="home"><div class="section card"><div class="chart-head"><div><h2>三個平台一覽</h2><p class="hint" id="homeHint"></p></div></div>' +
+      '<div id="homeTable"></div></div></div>';
+    html += '<div class="pane" data-pane="yt">';
     html += '<div class="grid g-hero">';
     html += '<div class="card hero"><div class="label">近 7 天自然觀看</div><div class="value" data-count="' + k.organic7 + '">0</div><div class="delta">' + deltaHtml(k.organic7, k.organic7Prev, true) + '</div></div>';
     html += '<div class="card"><div class="label">近 7 天廣告觀看</div><div class="value" data-count="' + k.ads7 + '">0</div><div class="delta">' + deltaHtml(k.ads7, k.ads7Prev, null) + '</div></div>';
@@ -414,16 +446,21 @@
       '<div class="scroll" id="rank"></div></div>';
 
     html += '<div class="section card"><h2>投放中的影片：自然 vs 廣告</h2><p class="hint">近 28 天有廣告觀看的影片。藍色是自然、橘色是廣告；廣告多但自然少，代表投放還沒帶動演算法推薦。</p><div class="bars" id="paid"></div></div>';
-    html += '<div class="section card"><div class="chart-head"><div><h2>IG 與 FB</h2><p class="hint" id="socHint"></p></div></div>' +
-      '<div id="socWarn"></div><div class="scroll" id="socKpi"></div>' +
-      '<h3 class="subh">IG 近 60 天內容</h3><p class="hint">依觀看排序。比值＝這篇的觀看 ÷ 近 60 天同類（Reels 跟 Reels 比、貼文跟貼文比）的中位數。觀看、讚、留言只算自然，不含加強推廣。</p><div class="scroll" id="socIg"></div>' +
-      '<h3 class="subh">FB 近 60 天貼文</h3><p class="hint">依自然觀看排序。鈞播的 FB 廣告多半是另做的素材，不會出現在這裡，但會灌進上面的「粉專觀看」。</p><div class="scroll" id="socFb"></div></div>';
+    html += '</div>';   // yt pane（上半）
+    html += '<div class="pane" data-pane="fb"><div class="section card"><div class="chart-head"><div><h2>Facebook 粉專</h2><p class="hint" id="socHintFb"></p></div></div>' +
+      '<div id="socWarnFb"></div><div class="scroll" id="socKpiFb"></div>' +
+      '<h3 class="subh">FB 近 60 天貼文</h3><p class="hint">依自然觀看排序。鈞播的 FB 廣告多半是另做的素材，不會出現在這裡，但會灌進上面的「粉專觀看」。</p><div class="scroll" id="socFb"></div></div></div>';
+    html += '<div class="pane" data-pane="ig"><div class="section card"><div class="chart-head"><div><h2>Instagram</h2><p class="hint" id="socHintIg"></p></div></div>' +
+      '<div id="socWarnIg"></div><div class="scroll" id="socKpiIg"></div>' +
+      '<h3 class="subh">IG 近 60 天內容</h3><p class="hint">依觀看排序。比值＝這篇的觀看 ÷ 近 60 天同類（Reels 跟 Reels 比、貼文跟貼文比）的中位數。觀看、讚、留言只算自然，不含加強推廣。</p><div class="scroll" id="socIg"></div></div></div>';
+    html += '<div class="pane" data-pane="ads">';
     html += '<div class="section card"><div class="chart-head"><div><h2>廣告投放（鈞播週報）</h2><p class="hint" id="adsHint"></p></div></div>' +
       '<div id="adsWarn"></div><div class="scroll" id="adsNow"></div>' +
       '<h3 class="subh">每月成效</h3><div class="scroll" id="adsMonths"></div>' +
       '<h3 class="subh">本月 YouTube 各支廣告</h3><div class="scroll" id="adsVideos"></div>' +
       '<h3 class="subh">YouTube 廣告打到誰（年齡）</h3><div class="scroll" id="adsAges"></div><p class="hint" id="adsAgeNote" style="margin-top:8px"></p>' +
       '<h3 class="subh">跟 YouTube 後台的數字對一下</h3><p class="hint" id="adsRecon" style="margin-bottom:0"></p></div>';
+    html += '</div><div class="pane" data-pane="market">';
     html += '<div class="section card"><div class="chart-head"><div><h2>市場題材地圖</h2><p class="hint" id="topicHint"></p></div>' +
       '<div class="seg" id="topicSeg" aria-label="分類"><button class="on" data-k="topics">題材</button><button data-k="forms">形式</button></div></div>' +
       '<details class="rules"><summary>案例影片怎麼挑的（點題材那一列就會展開）</summary><ol>' +
@@ -451,19 +488,21 @@
       + '是固定資料、不會自動更新，各列的擷取日寫在備註。倍數＝每集觀看中位 ÷ 該頻道平常長片的觀看中位。</p><div class="scroll" id="podArchive"></div>' +
       '<h3 class="subh">甘丹自己的對談</h3><div class="scroll" id="podOwn"></div>' +
       '<h3 class="subh">甘丹各種拍法比一比</h3><p class="hint">甘丹還有流量的長片，照形式分組取中位數。同一個頻道、同一群觀眾，最能看出換成對談要付出多少代價。</p><div class="scroll" id="podOwnForms"></div></div>';
+    html += '</div><div class="pane" data-pane="yt">';   // yt pane（下半：諮詢推估、審片）
     // 2026-10-13 Ethan 決定整區拿掉：目前「確定」「時間推測」都是 0，只剩照觀看比例分攤的假設值，參考性低。
     // 資料仍每天計算；等官網外包商開通來源網址、有「確定」資料後，把 SHOW_CONV 改回 true 就會回來（成績單裡的推估諮詢也一起）。
     if (SHOW_CONV) html += '<div class="section card"><div class="chart-head"><div><h2>影片帶來的諮詢（推估）</h2><p class="hint">把官網諮詢單對回影片，分三層：<b>確定</b>＝諮詢單帶影片追蹤碼；<b>時間推測</b>＝填單前 60 分鐘內有人點了那支影片的說明欄連結；<b>分攤</b>＝客戶自述「YouTube」但對不到點擊，依填單前 7 天各<b>長片</b>的自然觀看比例分攤（假設來諮詢的人是被長片說服的；Shorts 不分攤；是假設，不是事實）。樣本很少，看題材層級比看單支影片可靠。</p></div>' +
       '<div class="summary-chip" id="convSummary"></div></div><div class="scroll" id="convTopics"></div><div class="scroll" id="convVideos" style="margin-top:14px"></div></div>';
     html += '<div class="section card"><div class="chart-head"><div><h2>審片 vs 實際</h2><p class="hint">拍前在試算表「審片紀錄」分頁打分數（左邊欄位），程式每天算出判定，上片後自動接實際表現。實際優先用「首 28 天自然 ÷ 同類中位」，還沒滿 28 天就用手填的倍數；≥1 算達標。每季用這張表檢討審片門檻準不準。</p></div>' +
       '<div class="summary-chip" id="reviewSummary"></div></div><div class="scroll" id="reviews"></div></div>';
+    html += '</div>';
     $('#app').innerHTML = html;
 
     document.querySelectorAll('[data-count]').forEach(function (el) { countUp(el, +el.getAttribute('data-count')); });
     document.querySelectorAll('[data-pct]').forEach(function (el) { countUp(el, +el.getAttribute('data-pct'), { pct: true }); });
     var st = { t: '全部', w: '28' };
     drawLine(d); drawDayTable(d); drawSources(d); drawCands(d); drawRank(d, st.t, st.w); drawPaid(d);
-    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawBreakouts(d); drawPodcast(d); drawSocial(d); drawAds(d); drawReviews(d); drawConversions(d); addHelp(); addFreq(); bindCards('#launch', d); bindCards('#rank', d); initGloss(); annotate();
+    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawBreakouts(d); drawPodcast(d); drawSocial(d); drawAds(d); drawReviews(d); drawConversions(d); drawHome(d); addHelp(); addFreq(); initTabs(d); bindCards('#launch', d); bindCards('#rank', d); initGloss(); annotate();
     function segClick(sel, attr, after) {
       $(sel).addEventListener('click', function (e) {
         var b = e.target.closest('button'); if (!b) return;
@@ -1022,14 +1061,23 @@
       ['近 90 天熱度', '最近 90 天這個題材比 12 個月平均是升溫還是降溫（已扣掉「新片整體偏高」）：指數 ≥1.15 且近期至少 2 個頻道爆過＝升溫，≤0.85＝降溫；近期不到 8 支＝樣本少。<b>長期強＋升溫＝現在最值得拍</b>；弱但升溫＝先觀察。'],
       ['甘丹倍數中位', '甘丹自己拍這類題材的成績（同一套算法）；「沒拍過」＝可能是空位。'],
       ['形式', '切到「形式」看口播、作品開箱、對談等拍法的表現；評級只做題材。']]),
-    'IG 與 FB': dl([
+    'Facebook 粉專': dl([
       ['資料從哪來', 'Meta 官方洞察 API，用 Wing 帳號授權的粉專權杖每天自動抓（權杖不會過期，但 Wing 改密碼或移除授權就要重做）。'],
-      ['上週表', 'IG 與 FB 各項上週合計，跟前 8 個完整週的中位數比。'],
-      ['IG 有沒有含廣告', 'Meta 說明：IG 貼文的觀看、讚、留言只算自然；帳號層的觸及與互動含廣告。甘丹 IG 近 50 則都沒加強推廣過（2026-10-14 查），所以這點<b>還沒實測</b>，第一次投 IG 時要再對一次。'],
+      ['上週表', '各項上週合計，跟前 8 個完整週的中位數比。'],
       ['跟 Business Suite 對帳', '2026-10-14 挑 3 篇貼文＋近 28 天帳號數字對過：觀看、分享、儲存、3 秒觀看一致；觸及差 1% 內（Meta 估計值）；FB 心情數差 1–2；FB「所有點擊」含點開相片和播放，不等於後台的連結點擊。IG 觸及改用整週不重複人數，才對得上後台。'],
       ['FB 粉專觀看被廣告灌水', '鈞播的 FB 廣告多半是另做素材，貼文層幾乎沒有廣告觀看，但粉專層的觀看大部分來自廣告，所以分成自然與廣告兩列看。'],
+      ['限制', '限時動態只保留 24 小時，沒有追；競品的 IG、FB 拿不到後台數字，沒有做。']]),
+    'Instagram': dl([
+      ['資料從哪來', 'Meta 官方洞察 API，用 Wing 帳號授權的粉專權杖每天自動抓（權杖不會過期，但 Wing 改密碼或移除授權就要重做）。'],
+      ['上週表', '各項上週合計，跟前 8 個完整週的中位數比。'],
+      ['IG 有沒有含廣告', 'Meta 說明：IG 貼文的觀看、讚、留言只算自然；帳號層的觸及與互動含廣告。甘丹 IG 近 50 則都沒加強推廣過（2026-10-14 查），所以這點<b>還沒實測</b>，第一次投 IG 時要再對一次。'],
+      ['跟 Business Suite 對帳', '2026-10-14 挑 3 篇貼文＋近 28 天帳號數字對過：觀看、分享、儲存、3 秒觀看一致；觸及差 1% 內（Meta 估計值）；FB 心情數差 1–2；FB「所有點擊」含點開相片和播放，不等於後台的連結點擊。IG 觸及改用整週不重複人數，才對得上後台。'],
       ['IG 近 60 天內容', 'Reels 跟 Reels 比、貼文跟貼文比；3 秒滑掉率與平均觀看秒只有 Reels 有。'],
       ['限制', '限時動態只保留 24 小時，沒有追；競品的 IG、FB 拿不到後台數字，沒有做。']]),
+    '三個平台一覽': dl([
+      ['比平常', 'YouTube＝近 7 天 ÷ 前 7 天；FB／IG＝上週 ÷ 前 8 個完整週的中位數。綠燈 ≥1.2、紅燈 &lt;0.8。'],
+      ['為什麼不加總', 'YouTube 的觀看要播放一段時間才算；FB、IG 的「觀看」是內容出現在畫面上就算。單位不同，加起來沒有意義。'],
+      ['期間不一樣', 'YouTube 資料約落後 3 天，FB／IG 用上一個完整週（週一到週日），所以日期不會完全對齊。']]),
     '廣告投放（鈞播週報）': dl([
       ['資料從哪來', '廣告代理商鈞播（Jinbo）每週寄到公司信箱的「廣告成效週報」附件。數據中心每天自動檢查信箱，有新的一期就讀進來。'],
       ['本月 YouTube 廣告', '預算、已花費、觀看次數、保證觀看與達成率。報表通常到寄出前一天。'],
@@ -1098,29 +1146,88 @@
     var cls = r === '對' ? 'hi' : r.indexOf('錯') === 0 ? 'lo' : 'mid';
     return '<span class="ratio ' + cls + '">' + esc(r) + '</span>';
   }
+  /* ---- 標籤與總覽（2026-10-14） ---- */
+  var TABS = [['home', '總覽'], ['yt', 'YouTube'], ['fb', 'Facebook'], ['ig', 'Instagram'], ['ads', '廣告'], ['market', '市場研究']];
+  function initTabs(d) {
+    var keys = TABS.map(function (t) { return t[0]; }), saved = '';
+    try { saved = localStorage.getItem('gdc-tab') || ''; } catch (e) {}
+    var fromHash = (location.hash || '').replace('#', '');
+    show(keys.indexOf(fromHash) >= 0 ? fromHash : keys.indexOf(saved) >= 0 ? saved : 'home', true);
+    document.querySelector('.tabs').addEventListener('click', function (e) { var b = e.target.closest('.tab'); if (b) show(b.getAttribute('data-k')); });
+    document.querySelector('.tabs').addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      var cur = keys.indexOf(document.querySelector('.tab[aria-selected="true"]').getAttribute('data-k'));
+      var nx = keys[(cur + (e.key === 'ArrowRight' ? 1 : keys.length - 1)) % keys.length];
+      show(nx); document.querySelector('.tab[data-k="' + nx + '"]').focus();
+    });
+    document.getElementById('app').addEventListener('click', function (e) { var g = e.target.closest('[data-go]'); if (g) { show(g.getAttribute('data-go')); window.scrollTo(0, 0); } });
+    window.addEventListener('hashchange', function () { var k = (location.hash || '').replace('#', ''); if (keys.indexOf(k) >= 0) show(k, true); });
+    function show(k, first) {
+      document.querySelectorAll('.tab').forEach(function (b) { var on = b.getAttribute('data-k') === k; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; });
+      document.querySelectorAll('#app .pane').forEach(function (p) { p.hidden = p.getAttribute('data-pane') !== k; });
+      try { localStorage.setItem('gdc-tab', k); } catch (e) {}
+      if (!first && history.replaceState) history.replaceState(null, '', '#' + k);
+      if (k === 'yt') drawLine(d);   // 隱藏時量不到寬度，切回來重畫
+    }
+  }
+  function drawHome(d) {
+    if (!$('#homeTable')) return;
+    var k = d.kpi || {}, S = d.social || {}, F = S.followers || {};
+    var ytFrom = d.through ? addDaysC(d.through, -6) : '', fw = (S.fbWeeks || []).slice(-1)[0] || {}, iw = (S.igWeeks || []).slice(-1)[0] || {};
+    var range = function (w) { return w && w.week ? w.week.slice(5) + '–' + addDaysC(w.week, 6).slice(5) : '—'; };
+    function card(pc, name, period, go, rows, extra) {
+      return '<div class="hcard"><div class="hhead"><span class="pdot ' + pc + '" aria-hidden="true"></span><b>' + name + '</b><span class="hper">' + period + '</span>' +
+        '<button class="golink" type="button" data-go="' + go + '">看詳細 →</button></div>' + rows.join('') + (extra ? '<p class="hint" style="margin:8px 0">' + extra + '</p>' : '') + '</div>';
+    }
+    function mrow(label, value, baseLabel, base, ratio, paid) {
+      return '<div class="hrow"><span class="hlab">' + label + '</span><span class="hval">' + (value == null ? '—' : fmt(value)) + '</span>' +
+        '<span class="hcmp">' + (paid ? '' : light(ratio, 0.8, 1.2)) + '<span>' + baseLabel + ' ' + (base == null ? '—' : fmt(Math.round(base))) + (paid ? '（買來的量，不打燈號）' : '') + '</span></span></div>';
+    }
+    var r = function (o) { return o || {}; }, fk = S.fbKpi || {}, ik = S.igKpi || {};
+    var ytPeriod = ytFrom ? ytFrom.slice(5) + '–' + d.through.slice(5) : '—';
+    var net = function (n) { return n == null ? '' : '（近 28 天 ' + (n >= 0 ? '+' : '') + fmt(n) + '）'; };
+    $('#homeTable').innerHTML = '<div class="homegrid">' +
+      card('yt', 'YouTube', ytPeriod, 'yt', [mrow('自然觀看', k.organic7, '前 7 天', k.organic7Prev, k.organic7Prev ? Math.round(k.organic7 / k.organic7Prev * 100) / 100 : null),
+        mrow('廣告觀看', k.ads7, '前 7 天', k.ads7Prev, null, true)]) +
+      card('fb', 'Facebook', range(fw), 'fb', [mrow('粉專自然觀看', r(fk.organic).value, '前 8 週中位', r(fk.organic).median, r(fk.organic).ratio),
+        mrow('粉專廣告觀看', r(fk.ads).value, '前 8 週中位', r(fk.ads).median, null, true)], '追蹤數 ' + (F.fb == null ? '—' : fmt(F.fb)) + net(F.fbNet28)) +
+      card('ig', 'Instagram', range(iw), 'ig', [mrow('觀看', r(ik.views).value, '前 8 週中位', r(ik.views).median, r(ik.views).ratio),
+        mrow('不重複觸及', r(ik.reach).value, '前 8 週中位', r(ik.reach).median, r(ik.reach).ratio)], '追蹤數 ' + (F.ig == null ? '—' : fmt(F.ig)) + net(F.igNet28)) +
+      '</div>';
+    $('#homeHint').innerHTML = '每個平台只跟<b>自己平常</b>比：YouTube 比前 7 天（資料約落後 3 天），FB／IG 比前 8 個完整週的中位數。' +
+      '<b>三個平台的「觀看」算法不一樣，不要加總、也不要互相比大小。</b>';
+  }
+  function addDaysC(day, n) {
+    var t = Date.parse(day + 'T00:00:00Z'); if (isNaN(t)) return '';
+    return new Date(t + n * 86400000).toISOString().slice(0, 10);
+  }
   /* ---- IG 與 FB ---- */
   function drawSocial(d) {
     var S = d.social || { empty: true }, st = S.status || {};
-    if (!$('#socHint')) return;
-    $('#socHint').textContent = '甘丹 IG（@gandandesign）與 FB 粉專的每日數字，從 Meta 官方洞察 API 自動抓。週＝週一到週日；燈號比的是前 8 個完整週的中位數。' +
-      'Meta 的「一天」是美西時間，跟台灣差 15–16 小時。資料最多落後 2 天' + (S.through ? '（IG 到 ' + (S.through.ig || '—') + '、FB 到 ' + (S.through.fb || '—') + '）' : '') + '。';
+    if (!$('#socHintIg')) return;
+    var common = '從 Meta 官方洞察 API 每天自動抓。週＝週一到週日；燈號比的是前 8 個完整週的中位數。Meta 的「一天」是美西時間，跟台灣差 15–16 小時，資料最多落後 2 天';
+    $('#socHintIg').textContent = '甘丹 IG（@gandandesign）的每日數字，' + common + (S.through ? '（到 ' + (S.through.ig || '—') + '）' : '') + '。';
+    $('#socHintFb').textContent = '甘丹設計 FB 粉專的每日數字，' + common + (S.through ? '（到 ' + (S.through.fb || '—') + '）' : '') + '。';
     var reachNote = S.igReachUnique === false ? '<div class="adswarn">有幾週還沒有整週的 IG 不重複觸及，暫用每日加總（會偏高）；補抓一次就好（python tools/meta-setup.py pull 63）。</div>' : '';
-    $('#socWarn').innerHTML = reachNote + (st.result === '失敗' ? '<div class="adswarn">最近一次抓取失敗（' + esc(st.last) + '）：' + esc(st.message) + '。權杖可能失效，請 Ethan 重跑 tools/meta-auth.py。</div>' : '');
-    if (S.empty) { $('#socKpi').innerHTML = '<div class="empty">還沒有資料。</div>'; $('#socIg').innerHTML = ''; $('#socFb').innerHTML = ''; return; }
+    var failNote = st.result === '失敗' ? '<div class="adswarn">最近一次抓取失敗（' + esc(st.last) + '）：' + esc(st.message) + '。權杖可能失效，請 Ethan 重跑 tools/meta-auth.py。</div>' : '';
+    $('#socWarnIg').innerHTML = reachNote + failNote; $('#socWarnFb').innerHTML = failNote;
+    if (S.empty) { ['#socKpiIg', '#socKpiFb'].forEach(function (k) { $(k).innerHTML = '<div class="empty">還沒有資料。</div>'; }); $('#socIg').innerHTML = ''; $('#socFb').innerHTML = ''; return; }
     var lastWeek = (S.igWeeks || []).slice(-1)[0] || {};
-    function row(label, k, unit) {
+    function row(label, k, unit, paid) {
       var r = k || {};
+      if (paid) r = Object.assign({}, r, { ratio: null });   // 廣告觀看是買來的量，不打燈號
       return '<tr><td><b style="font-weight:500">' + label + '</b></td><td class="num">' + (r.value == null ? '—' : fmt(r.value)) + (unit || '') + '</td>' +
         '<td class="num">' + (r.median == null ? '—' : fmt(Math.round(r.median))) + '</td><td class="num">' + light(r.ratio, 0.8, 1.2) + '</td></tr>';
     }
     var fbW = (S.fbWeeks || []).slice(-1)[0] || {}, adsShare = fbW.views ? Math.round(100 * (fbW.ads || 0) / fbW.views) : null;
     var F = S.followers || {};
-    $('#socKpi').innerHTML = '<table><thead><tr><th>上週（' + esc(lastWeek.week || '') + ' 起）</th><th class="num">數字</th><th class="num">前 8 週中位</th><th class="num">÷前 8 週中位</th></tr></thead><tbody>' +
-      row('IG 觸及', (S.igKpi || {}).reach) + row('IG 觀看', (S.igKpi || {}).views) + row('IG 非追蹤者觀看', (S.igKpi || {}).nonFollowerViews) + row('IG 互動', (S.igKpi || {}).interactions) +
-      row('FB 自然觀看', (S.fbKpi || {}).organic) + row('FB 廣告觀看', (S.fbKpi || {}).ads) + row('FB 互動', (S.fbKpi || {}).engagements) + '</tbody></table>' +
-      '<p class="hint" style="margin:10px 0 0">追蹤數：IG ' + (F.ig == null ? '—' : fmt(F.ig)) + (F.igNet28 != null ? '（近 28 天淨增 ' + (F.igNet28 >= 0 ? '+' : '') + fmt(F.igNet28) + '）' : '') +
-      '、FB ' + (F.fb == null ? '—' : fmt(F.fb)) + (F.fbNet28 != null ? '（近 28 天 ' + (F.fbNet28 >= 0 ? '+' : '') + fmt(F.fbNet28) + '）' : '') + '。' +
-      (adsShare != null ? '上週 FB 粉專觀看有 ' + adsShare + '% 來自廣告。' : '') + '</p>';
+    var head = '<table><thead><tr><th>上週（' + esc(lastWeek.week || '') + ' 起）</th><th class="num">數字</th><th class="num">前 8 週中位</th><th class="num">÷前 8 週中位</th></tr></thead><tbody>';
+    $('#socKpiIg').innerHTML = head + row('IG 觸及', (S.igKpi || {}).reach) + row('IG 觀看', (S.igKpi || {}).views) + row('IG 非追蹤者觀看', (S.igKpi || {}).nonFollowerViews) +
+      row('IG 互動', (S.igKpi || {}).interactions) + '</tbody></table>' +
+      '<p class="hint" style="margin:10px 0 0">追蹤數 ' + (F.ig == null ? '—' : fmt(F.ig)) + (F.igNet28 != null ? '（近 28 天淨增 ' + (F.igNet28 >= 0 ? '+' : '') + fmt(F.igNet28) + '）' : '') + '。</p>';
+    $('#socKpiFb').innerHTML = head + row('FB 自然觀看', (S.fbKpi || {}).organic) + row('FB 廣告觀看', (S.fbKpi || {}).ads, '', true) + row('FB 互動', (S.fbKpi || {}).engagements) + '</tbody></table>' +
+      '<p class="hint" style="margin:10px 0 0">追蹤數 ' + (F.fb == null ? '—' : fmt(F.fb)) + (F.fbNet28 != null ? '（近 28 天 ' + (F.fbNet28 >= 0 ? '+' : '') + fmt(F.fbNet28) + '）' : '') + '。' +
+      (adsShare != null ? '上週粉專觀看有 ' + adsShare + '% 來自廣告。' : '') + '</p>';
     var ig = S.ig || [];
     $('#socIg').innerHTML = ig.length ? '<table><thead><tr><th>IG 內容</th><th class="num">自然觀看</th><th class="num">÷同類中位</th><th class="num">3秒滑掉率</th><th class="num">平均觀看秒</th><th class="num">儲存</th><th class="num">分享</th></tr></thead><tbody>' +
       ig.map(function (x) {
@@ -1253,7 +1360,9 @@
     '近 60 天新爆片': '每週一 07:00 自動換新。只列已經分好題材的片，所以每月 1 號分類之後才上架的新片，要等下個月 1 號才會出現。',
     '近 60 天新爆 Shorts': '每週一 07:00 跟競品更新一起換新；Shorts 不分題材，上架滿 7 天就會出現。',
     '不限時間爆款長片': '每週二 07:00 自動掃描（最久沒掃的頻道先掃，一次約 4 分鐘，掃不完下週接著掃）。',
-    'IG 與 FB': '每天 07:00 從 Meta 官方 API 自動更新；Meta 的資料最多落後 2 天，而且以美西時間切日。',
+    '三個平台一覽': '每天自動更新：YouTube 06:00、FB／IG 07:00（各自落後 2–3 天）。',
+    'Facebook 粉專': '每天 07:00 從 Meta 官方 API 自動更新；Meta 的資料最多落後 2 天，而且以美西時間切日。',
+    'Instagram': '每天 07:00 從 Meta 官方 API 自動更新；Meta 的資料最多落後 2 天，而且以美西時間切日。',
     '廣告投放（鈞播週報）': '鈞播通常每週二傍晚寄出週報（偶爾週三、週四），內容到寄出前一天為止。數據中心每天 08:00 檢查信箱，收到新的一期就自動匯入。',
     'Podcast／對談影片地圖': '市場的部分每週一 07:00 跟題材地圖一起更新（新片同樣要等每月 1 號分類）；甘丹自己的兩張表每天 06:00 更新。',
     '影片帶來的諮詢（推估）': '每天 06:00 自動更新，讀「影片來源追蹤」試算表當下的諮詢紀錄。',
@@ -1300,7 +1409,7 @@
 
   function fail(e) { $('#app').innerHTML = '<div class="err">讀不到資料：' + esc(e && e.message ? e.message : e) + '。請稍後重新整理；若持續發生，請告訴 Ethan。</div>'; }
   if (window.google && google.script && google.script.run) {
-    google.script.run.withSuccessHandler(render).withFailureHandler(fail).getDashboardData();
+    google.script.run.withSuccessHandler(function (s) { render(typeof s === 'string' ? JSON.parse(s) : s); }).withFailureHandler(fail).getDashboardJsonForPage();
   } else if (window.GDC_API) {
     // GitHub Pages 版：背景抓 Apps Script JSON（不帶 Google 登入資料，多帳號也能開）
     fetch(window.GDC_API + '?format=json', { credentials: 'omit', cache: 'no-store' })

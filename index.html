@@ -256,6 +256,13 @@
   .subh { font-size: 15px; margin: 24px 0 8px; }
   .subrow { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; margin: 24px 0 8px; }
   .subrow .subh { margin: 0; }
+  .analysis { font-size: 14px; line-height: 1.75; color: var(--ink); }
+  .analysis ul { margin: 6px 0 10px; padding-left: 20px; } .analysis li { margin: 3px 0; } .analysis p { margin: 6px 0; }
+  .analysis h4 { font-size: 14px; margin: 12px 0 4px; }
+  .chg { font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; }
+  .toplist { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 8px; }
+  @media (max-width: 760px) { .toplist { grid-template-columns: 1fr; } }
+  .toplist .hcard { padding-bottom: 10px; } .toplist .ti { font-size: 13px; margin: 6px 0; }
   .best { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 600; color: var(--ink); background: var(--surface); box-shadow: 0 0 0 1px var(--ring); border-radius: 999px; padding: 1px 7px; }
   .freq { font-size: 12px; color: var(--muted); margin: -6px 0 14px; line-height: 1.55; }
   .freq b { font-weight: 500; color: var(--ink-2); margin-right: 8px; padding: 1px 7px; border-radius: 99px; box-shadow: 0 0 0 1px var(--ring); white-space: nowrap; }
@@ -417,7 +424,9 @@
     html += '<p class="gloss-hint">ⓘ 有<span class="demo">虛線底線</span>的名詞，把滑鼠移上去（手機請點一下）就會出現白話解釋。</p>';
     html += '<div class="tabs" role="tablist" aria-label="切換平台">' + TABS.map(function (t) {
       return '<button class="tab" role="tab" type="button" data-k="' + t[0] + '" aria-selected="false"><span class="dot" aria-hidden="true"></span>' + t[1] + '</button>'; }).join('') + '</div>';
-    html += '<div class="pane" data-pane="home"><div class="section card"><div class="chart-head"><div><h2>三個平台一覽</h2><p class="hint" id="homeHint"></p></div></div>' +
+    html += '<div class="pane" data-pane="home"><div class="section card"><div class="chart-head"><div><h2>數據週報／月報</h2><p class="hint" id="repHint"></p></div>' +
+      '<div class="seg" id="repSeg" aria-label="週報或月報"><button class="on" data-k="week">週報</button><button data-k="month">月報</button></div></div><div id="repBody"></div></div>' +
+      '<div class="section card"><div class="chart-head"><div><h2>三個平台一覽</h2><p class="hint" id="homeHint"></p></div></div>' +
       '<div id="homeTable"></div></div>' +
       '<div class="section card"><div class="chart-head"><div><h2>同一支片，三個平台</h2><p class="hint" id="crossHint"></p></div></div><div class="scroll" id="cross"></div></div></div>';
     html += '<div class="pane" data-pane="yt">';
@@ -511,7 +520,7 @@
     document.querySelectorAll('[data-pct]').forEach(function (el) { countUp(el, +el.getAttribute('data-pct'), { pct: true }); });
     var st = { t: '全部', w: '28' };
     drawLine(d); drawDayTable(d); drawSources(d); drawCands(d); drawRank(d, st.t, st.w); drawPaid(d);
-    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawBreakouts(d); drawPodcast(d); drawSocial(d); drawAds(d); drawReviews(d); drawConversions(d); drawHome(d); drawCross(d); addHelp(); addFreq(); initTabs(d); bindCards('#launch', d); bindCards('#rank', d); initGloss(); annotate();
+    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawBreakouts(d); drawPodcast(d); drawSocial(d); drawAds(d); drawReviews(d); drawConversions(d); drawHome(d); drawCross(d); drawReport(d, 'week'); segClick('#repSeg', 'data-k', function (k) { drawReport(d, k); }); addHelp(); addFreq(); initTabs(d); bindCards('#launch', d); bindCards('#rank', d); initGloss(); annotate();
     function segClick(sel, attr, after) {
       $(sel).addEventListener('click', function (e) {
         var b = e.target.closest('button'); if (!b) return;
@@ -761,6 +770,11 @@
     'FB 貼文': ['FB 粉專的貼文，點標題會開 FB。', '下面小字是發布日（台灣時間）與類型。'],
     '÷中位': ['這篇的自然觀看 ÷ 近 60 天 FB 貼文自然觀看的中位數。', '1＝跟平常一樣。'],
     '點擊': ['貼文任何地方被點的次數。', '點擊多代表內容讓人想看更多。'],
+    '指標': ['這一列看的是什麼數字。', '各平台的「觀看」算法不同，只跟同一列的上期、平常比。'],
+    '本期': ['這一週（或這個月）的合計。', ''],
+    '上期': ['上一週（或上個月）的合計。', ''],
+    '變化': ['本期比上期多或少幾 %。', '單週起伏很大，連續幾週同方向才算趨勢。'],
+    '比平常': ['本期 ÷ 前 8 週（月報：前 6 個月）的中位數。1＝跟平常一樣。', '≥1.2 綠燈、<0.8 紅燈；廣告類不打燈。'],
     'IG 主頁瀏覽': ['有幾次有人點進甘丹的 IG 主頁。', '看完內容想多認識甘丹的第一步；觀看 → 主頁瀏覽 → 官網點擊，是 IG 的漏斗。'],
     'IG 官網連結點擊': ['有幾次有人點了 IG 簡介裡的官網連結（目前是 www.gandandesign.com.tw 首頁）。', 'IG 最接近「想進一步了解」的動作。數字小（近 28 天約 50 次），看走勢比看單週準。'],
     'IG 新追蹤': ['這段期間新增的追蹤者人數。', '比觀看更能代表「想持續看甘丹」。'],
@@ -1087,6 +1101,13 @@
       ['跟 Business Suite 對帳', '2026-10-14 挑 3 篇貼文＋近 28 天帳號數字對過：觀看、分享、儲存、3 秒觀看一致；觸及差 1% 內（Meta 估計值）；FB 心情數差 1–2；FB「所有點擊」含點開相片和播放，不等於後台的連結點擊。IG 觸及改用整週不重複人數，才對得上後台。'],
       ['IG 近 60 天內容', 'Reels 跟 Reels 比、貼文跟貼文比；3 秒滑掉率與平均觀看秒只有 Reels 有。'],
       ['限制', '限時動態只保留 24 小時，沒有追；競品的 IG、FB 拿不到後台數字，沒有做。']]),
+    '數據週報／月報': dl([
+      ['期間', '週報＝三個平台都有完整資料的最近一週（週一到週日）；月報＝最近一個完整的月。YouTube 資料約晚 3 天，所以週報每週四才換到上一週。'],
+      ['變化', '本期 ÷ 上期 − 1。'],
+      ['比平常', '本期 ÷ 前 8 週（月報：前 6 個月）完整期間的中位數；≥1.2 綠燈、<0.8 紅燈。廣告類是買來的量，只列數字不打燈。'],
+      ['廣告（鈞播）', '鈞播週報的 YouTube 花費與觀看、FB 花費與表單名單。週報通常週二傍晚寄到，還沒寄到的那幾天不完整就不列。'],
+      ['諮詢', '影片來源追蹤試算表的官網諮詢單數（只有月份）；成交欄目前沒人勾，算不出成交。FB 廣告的表單名單不在這裡。'],
+      ['文字分析', 'Claude 每週四 09:00、每月 4 日 09:30 讀這裡的數字自動寫（電腦要開著 Claude）。只根據數字，推論會標明是推論。']]),
     '同一支片，三個平台': dl([
       ['怎麼配對', '同一天發布、同一種類：YouTube 長片 ↔ FB／IG 標題有「搶先看」的預告；YouTube Shorts ↔ 當天其他 FB 影片與 IG Reels。同一天同一類有兩支以上就不配，寧可漏不要配錯。2026-10-14 實測：近 60 天 YouTube 20 支有 18 支配到。'],
       ['格子裡的數字', '上面是自然觀看（YouTube＝總觀看扣廣告；FB＝自然觀看；IG＝觀看），下面是 ÷ 該平台近 60 天同類中位。'],
@@ -1340,6 +1361,61 @@
     hit.addEventListener('mousemove', move); hit.addEventListener('touchmove', move, { passive: true });
     hit.addEventListener('mouseleave', leave); hit.addEventListener('touchend', leave);
   }
+  /* ---- 數據週報／月報（2026-10-15） ---- */
+  function mdLite(text) {   // Claude 寫的分析：只支援段落、「- 」清單、「### 」小標、**粗體**
+    var out = [], list = false;
+    String(text || '').split(/\r?\n/).forEach(function (line) {
+      var t = esc(line.trim()).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+      if (/^-\s+/.test(line.trim())) { if (!list) { out.push('<ul>'); list = true; } out.push('<li>' + t.replace(/^-\s+/, '') + '</li>'); return; }
+      if (list) { out.push('</ul>'); list = false; }
+      if (!t) return;
+      out.push(/^###\s+/.test(line.trim()) ? '<h4>' + t.replace(/^###\s+/, '') + '</h4>' : '<p>' + t + '</p>');
+    });
+    if (list) out.push('</ul>');
+    return out.join('');
+  }
+  function drawReport(d, kind) {
+    var R = d.report || { empty: true };
+    if (!$('#repBody')) return;
+    $('#repHint').innerHTML = '數字每天自動更新；文字分析每週四、每月 4 日由 Claude 撰寫。週報＝三個平台都有完整資料的最近一週（週一到週日）；YouTube 資料約晚 3 天，所以每週四才換成上一週。' +
+      '「平常」＝前 8 週（月報：前 6 個月）的中位數。廣告類是買來的量，不打燈號。';
+    if (R.empty) { $('#repBody').innerHTML = '<div class="empty">還沒有資料。</div>'; return; }
+    var X = R[kind] || {}, P = { yt: 'YouTube', fb: 'Facebook', ig: 'Instagram', ads: '廣告（鈞播）', lead: '諮詢' };
+    var label = kind === 'week' ? (X.start ? X.start.slice(5).replace('-', '/') + '–' + X.end.slice(5).replace('-', '/') : '') : (X.period ? X.period.slice(0, 4) + ' 年 ' + (+X.period.slice(5)) + ' 月' : '');
+    var A = X.analysis, an;
+    if (A && A.current) an = '<div class="note analysis">' + mdLite(A.text) + '<p class="sub2" style="margin-top:8px">Claude 分析，' + esc(A.time) + ' 寫</p></div>';
+    else an = '<div class="note">這一期的文字分析還沒寫（' + (kind === 'week' ? '每週四' : '每月 4 日') + '自動產生）。' +
+      (A ? '<details style="margin-top:6px"><summary style="cursor:pointer">看上一期（' + esc(A.period) + '）的分析</summary><div class="analysis">' + mdLite(A.text) + '</div></details>' : '') + '</div>';
+    function chg(r) {
+      if (r.change == null) return '<span class="chg">—</span>';
+      var pct = Math.round(r.change * 100);
+      return '<span class="chg">' + (pct > 0 ? '▲ ' : pct < 0 ? '▼ ' : '') + Math.abs(pct) + '%</span>';
+    }
+    var order = ['yt', 'fb', 'ig', 'ads', 'lead'], rows = (X.rows || []).slice().sort(function (a, b) { return order.indexOf(a.p) - order.indexOf(b.p); });
+    var table = '<table><thead><tr><th>平台</th><th>指標</th><th class="num">本期</th><th class="num">上期</th><th class="num">變化</th><th class="num">比平常</th></tr></thead><tbody>' +
+      rows.map(function (r, i) {
+        var first = !i || rows[i - 1].p !== r.p;
+        return '<tr><td>' + (first ? (r.p === 'yt' || r.p === 'fb' || r.p === 'ig' ? '<span class="pdot ' + r.p + '" aria-hidden="true"></span>' : '') + '<b style="font-weight:500">' + P[r.p] + '</b>' : '') + '</td>' +
+          '<td>' + esc(r.label) + '</td><td class="num">' + (r.cur == null ? '—' : fmt(Math.round(r.cur))) + '</td><td class="num">' + (r.prev == null ? '—' : fmt(Math.round(r.prev))) + '</td>' +
+          '<td class="num">' + chg(r) + '</td><td class="num">' + (r.paid ? (r.ratio == null ? '—' : '<span class="chg">' + r.ratio.toFixed(2) + '</span>') : light(r.ratio, 0.8, 1.2)) + '</td></tr>';
+      }).join('') + '</tbody></table>';
+    var extra = '';
+    if (kind === 'week') {
+      var T = X.top || {};
+      extra = '<h3 class="subh">這一週發的內容</h3><div class="toplist">' + ['yt', 'fb', 'ig'].map(function (k) {
+        var L = T[k] || [];
+        return '<div class="hcard"><div class="hhead"><span class="pdot ' + k + '" aria-hidden="true"></span><b>' + P[k] + '</b></div>' + (L.length ? L.map(function (x) {
+          return '<div class="ti"><a href="' + esc(x.url || '') + '" target="_blank" rel="noopener">' + esc((x.title || '（沒有文字）').slice(0, 30)) + ' ↗</a><div class="sub2">' + esc(x.pub) + ' · ' + esc(x.type || '') +
+            ' · 自然 ' + (x.value == null ? '—' : fmt(x.value)) + (x.ratio != null ? ' · ' + (k === 'yt' ? '前兩天 ' : '') + x.ratio.toFixed(2) + ' 倍' : '') + '</div></div>';
+        }).join('') : '<div class="sub2" style="padding:6px 0">這一週沒發</div>') + '</div>';
+      }).join('') + '</div>';
+    } else {
+      var C = X.consult;
+      extra = '<p class="hint" style="margin:12px 0 0">' + (C ? '官網諮詢單 ' + C.count + ' 筆（客戶自述 YouTube 約 ' + C.yt + '、Facebook 約 ' + C.fb + '、Instagram 約 ' + C.ig + '；可複選）。' : '這個月沒有諮詢資料。') +
+        esc(R.deals || '') + '。FB 廣告的表單名單不在官網諮詢單裡，只有鈞播報表的筆數。</p>';
+    }
+    $('#repBody').innerHTML = '<p style="margin:2px 0 10px;font-weight:600">' + (kind === 'week' ? '週報 ' : '月報 ') + esc(label) + '</p>' + an + '<div class="scroll" style="margin-top:12px">' + table + '</div>' + extra;
+  }
   /* ---- 同一支片，三個平台 ---- */
   function drawCross(d) {
     var C = d.cross || { groups: [] }, gs = C.groups || [];
@@ -1476,6 +1552,7 @@
     '不限時間爆款長片': '每週二 07:00 自動掃描（最久沒掃的頻道先掃，一次約 4 分鐘，掃不完下週接著掃）。',
     '三個平台一覽': '每天自動更新：YouTube 06:00、FB／IG 07:00（各自落後 2–3 天）。',
     '同一支片，三個平台': '每天自動更新：YouTube 06:00、FB／IG 07:00。',
+    '數據週報／月報': '數字每天自動更新；文字分析每週四 09:00、每月 4 日 09:30 由 Claude 撰寫。',
     'Facebook 粉專': '每天 07:00 從 Meta 官方 API 自動更新；Meta 的資料最多落後 2 天，而且以美西時間切日。',
     'Instagram': '每天 07:00 從 Meta 官方 API 自動更新；Meta 的資料最多落後 2 天，而且以美西時間切日。',
     '廣告投放（鈞播週報）': '鈞播通常每週二傍晚寄出週報（偶爾週三、週四），內容到寄出前一天為止。數據中心每天 08:00 檢查信箱，收到新的一期就自動匯入。',

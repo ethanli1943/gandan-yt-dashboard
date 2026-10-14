@@ -414,6 +414,10 @@
       '<div class="scroll" id="rank"></div></div>';
 
     html += '<div class="section card"><h2>投放中的影片：自然 vs 廣告</h2><p class="hint">近 28 天有廣告觀看的影片。藍色是自然、橘色是廣告；廣告多但自然少，代表投放還沒帶動演算法推薦。</p><div class="bars" id="paid"></div></div>';
+    html += '<div class="section card"><div class="chart-head"><div><h2>IG 與 FB</h2><p class="hint" id="socHint"></p></div></div>' +
+      '<div id="socWarn"></div><div class="scroll" id="socKpi"></div>' +
+      '<h3 class="subh">IG 近 60 天內容</h3><p class="hint">依觀看排序。比值＝這篇的觀看 ÷ 近 60 天同類（Reels 跟 Reels 比、貼文跟貼文比）的中位數。觀看、讚、留言只算自然，不含加強推廣。</p><div class="scroll" id="socIg"></div>' +
+      '<h3 class="subh">FB 近 60 天貼文</h3><p class="hint">依自然觀看排序。鈞播的 FB 廣告多半是另做的素材，不會出現在這裡，但會灌進上面的「粉專觀看」。</p><div class="scroll" id="socFb"></div></div>';
     html += '<div class="section card"><div class="chart-head"><div><h2>廣告投放（鈞播週報）</h2><p class="hint" id="adsHint"></p></div></div>' +
       '<div id="adsWarn"></div><div class="scroll" id="adsNow"></div>' +
       '<h3 class="subh">每月成效</h3><div class="scroll" id="adsMonths"></div>' +
@@ -457,7 +461,7 @@
     document.querySelectorAll('[data-pct]').forEach(function (el) { countUp(el, +el.getAttribute('data-pct'), { pct: true }); });
     var st = { t: '全部', w: '28' };
     drawLine(d); drawDayTable(d); drawSources(d); drawCands(d); drawRank(d, st.t, st.w); drawPaid(d);
-    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawBreakouts(d); drawPodcast(d); drawAds(d); drawReviews(d); drawConversions(d); addHelp(); addFreq(); bindCards('#launch', d); bindCards('#rank', d); initGloss(); annotate();
+    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawBreakouts(d); drawPodcast(d); drawSocial(d); drawAds(d); drawReviews(d); drawConversions(d); addHelp(); addFreq(); bindCards('#launch', d); bindCards('#rank', d); initGloss(); annotate();
     function segClick(sel, attr, after) {
       $(sel).addEventListener('click', function (e) {
         var b = e.target.closest('button'); if (!b) return;
@@ -679,6 +683,26 @@
     '每集觀看中位': ['這個節目所有集數觀看次數的中位數。', '下面小字是最少到最多。'],
     '平常長片中位': ['同一個頻道、不是這個節目的長片，觀看次數的中位數。', '拿來當這個頻道「平常水準」的基準。'],
     '節目': ['頻道名稱與節目名稱，點了會開 YouTube 播放清單。', '這張表是人工收錄的固定資料。'],
+    'IG 觸及': ['上週看過甘丹 IG 任何內容的不重複帳號數（Meta 估計值，含廣告）。', '人數，同一個人看很多次只算一次。'],
+    'IG 觀看': ['上週 IG 內容（Reels、貼文、限時動態）被播放或顯示的次數。', '次數，同一個人看多次會重複算。'],
+    'IG 非追蹤者觀看': ['IG 觀看裡，來自還沒追蹤甘丹的人的部分。', '越高代表內容有被推到新的人面前，是成長的訊號。'],
+    'IG 互動': ['上週 IG 內容的按讚、留言、儲存、分享、回覆總數。', '跟前 8 週中位比，看內容有沒有讓人想動手。'],
+    'FB 自然觀看': ['上週 FB 粉專內容不是靠廣告的觀看次數。', '判斷 FB 內容本身好不好看這個。'],
+    'FB 廣告觀看': ['上週 FB 粉專內容透過廣告被看到的次數。', '大多是鈞播投放的素材，是買來的量。'],
+    'FB 互動': ['上週 FB 貼文的按讚、留言、分享等互動次數。', '跟前 8 週中位比。'],
+    '前 8 週中位': ['上週之前 8 個完整週的中位數，當成「平常水準」。', '用中位數，偶爾一週爆量不會把基準拉高。'],
+    '÷前 8 週中位': ['上週 ÷ 前 8 週中位。', '1＝跟平常一樣；≥1.2 綠燈、<0.8 紅燈。'],
+    'IG 內容': ['IG 的 Reels、貼文或輪播，點標題會開 IG。', '下面小字是發布日（台灣時間）與類型。'],
+    '÷同類中位': ['這篇的觀看 ÷ 近 60 天同類內容的觀看中位數。', '1＝跟平常一樣；≥1.5 綠燈、<0.5 紅燈。'],
+    '3秒滑掉率': ['Reels 開播 3 秒內就被滑走的比例。', '越低越好；高代表開頭沒抓住人，先改前 3 秒。'],
+    '平均觀看秒': ['每次播放平均看了幾秒。', '跟片長一起看，看得出留不留得住人。'],
+    '儲存': ['被收藏的次數。', '儲存代表觀眾覺得「之後還會用到」，是最有價值的互動之一。'],
+    '分享': ['被分享出去的次數。', '分享會把內容帶到新的人面前。'],
+    'FB 貼文': ['FB 粉專的貼文，點標題會開 FB。', '下面小字是發布日（台灣時間）與類型。'],
+    '÷中位': ['這篇的自然觀看 ÷ 近 60 天 FB 貼文自然觀看的中位數。', '1＝跟平常一樣。'],
+    '點擊': ['貼文任何地方被點的次數。', '點擊多代表內容讓人想看更多。'],
+    '心情': ['按讚、大心等所有心情的總數。', '最基本的互動。'],
+    '3秒影片觀看': ['影片被看超過 3 秒的次數。', '只有影片貼文才有。'],
     '預算': ['這個月跟鈞播約定的廣告預算。', '來自鈞播報表。'],
     '已花費': ['這個月到報表日為止實際花掉的廣告費。', '跟預算比，看花費進度。'],
     '觀看次數': ['鈞播報表上的廣告觀看次數，也是計費的依據。', '跟 YouTube 後台的「廣告觀看」算法不同，數字不會一樣。'],
@@ -983,6 +1007,13 @@
       ['近 90 天熱度', '最近 90 天這個題材比 12 個月平均是升溫還是降溫（已扣掉「新片整體偏高」）：指數 ≥1.15 且近期至少 2 個頻道爆過＝升溫，≤0.85＝降溫；近期不到 8 支＝樣本少。<b>長期強＋升溫＝現在最值得拍</b>；弱但升溫＝先觀察。'],
       ['甘丹倍數中位', '甘丹自己拍這類題材的成績（同一套算法）；「沒拍過」＝可能是空位。'],
       ['形式', '切到「形式」看口播、作品開箱、對談等拍法的表現；評級只做題材。']]),
+    'IG 與 FB': dl([
+      ['資料從哪來', 'Meta 官方洞察 API，用 Wing 帳號授權的粉專權杖每天自動抓（權杖不會過期，但 Wing 改密碼或移除授權就要重做）。'],
+      ['上週表', 'IG 與 FB 各項上週合計，跟前 8 個完整週的中位數比。'],
+      ['IG 數字只算自然', 'IG 貼文的觀看、讚、留言只算自然，不含加強推廣；帳號層的觸及與互動則含廣告。'],
+      ['FB 粉專觀看被廣告灌水', '鈞播的 FB 廣告多半是另做素材，貼文層幾乎沒有廣告觀看，但粉專層的觀看大部分來自廣告，所以分成自然與廣告兩列看。'],
+      ['IG 近 60 天內容', 'Reels 跟 Reels 比、貼文跟貼文比；3 秒滑掉率與平均觀看秒只有 Reels 有。'],
+      ['限制', '限時動態只保留 24 小時，沒有追；競品的 IG、FB 拿不到後台數字，沒有做。']]),
     '廣告投放（鈞播週報）': dl([
       ['資料從哪來', '廣告代理商鈞播（Jinbo）每週寄到公司信箱的「廣告成效週報」附件。數據中心每天自動檢查信箱，有新的一期就讀進來。'],
       ['本月 YouTube 廣告', '預算、已花費、觀看次數、保證觀看與達成率。報表通常到寄出前一天。'],
@@ -1050,6 +1081,43 @@
     if (!r) return '<span class="ratio mid">未打分</span>';
     var cls = r === '對' ? 'hi' : r.indexOf('錯') === 0 ? 'lo' : 'mid';
     return '<span class="ratio ' + cls + '">' + esc(r) + '</span>';
+  }
+  /* ---- IG 與 FB ---- */
+  function drawSocial(d) {
+    var S = d.social || { empty: true }, st = S.status || {};
+    if (!$('#socHint')) return;
+    $('#socHint').textContent = '甘丹 IG（@gandandesign）與 FB 粉專的每日數字，從 Meta 官方洞察 API 自動抓。週＝週一到週日；燈號比的是前 8 個完整週的中位數。' +
+      'Meta 的「一天」是美西時間，跟台灣差 15–16 小時。資料最多落後 2 天' + (S.through ? '（IG 到 ' + (S.through.ig || '—') + '、FB 到 ' + (S.through.fb || '—') + '）' : '') + '。';
+    $('#socWarn').innerHTML = st.result === '失敗' ? '<div class="adswarn">最近一次抓取失敗（' + esc(st.last) + '）：' + esc(st.message) + '。權杖可能失效，請 Ethan 重跑 tools/meta-auth.py。</div>' : '';
+    if (S.empty) { $('#socKpi').innerHTML = '<div class="empty">還沒有資料。</div>'; $('#socIg').innerHTML = ''; $('#socFb').innerHTML = ''; return; }
+    var lastWeek = (S.igWeeks || []).slice(-1)[0] || {};
+    function row(label, k, unit) {
+      var r = k || {};
+      return '<tr><td><b style="font-weight:500">' + label + '</b></td><td class="num">' + (r.value == null ? '—' : fmt(r.value)) + (unit || '') + '</td>' +
+        '<td class="num">' + (r.median == null ? '—' : fmt(Math.round(r.median))) + '</td><td class="num">' + light(r.ratio, 0.8, 1.2) + '</td></tr>';
+    }
+    var fbW = (S.fbWeeks || []).slice(-1)[0] || {}, adsShare = fbW.views ? Math.round(100 * (fbW.ads || 0) / fbW.views) : null;
+    var F = S.followers || {};
+    $('#socKpi').innerHTML = '<table><thead><tr><th>上週（' + esc(lastWeek.week || '') + ' 起）</th><th class="num">數字</th><th class="num">前 8 週中位</th><th class="num">÷前 8 週中位</th></tr></thead><tbody>' +
+      row('IG 觸及', (S.igKpi || {}).reach) + row('IG 觀看', (S.igKpi || {}).views) + row('IG 非追蹤者觀看', (S.igKpi || {}).nonFollowerViews) + row('IG 互動', (S.igKpi || {}).interactions) +
+      row('FB 自然觀看', (S.fbKpi || {}).organic) + row('FB 廣告觀看', (S.fbKpi || {}).ads) + row('FB 互動', (S.fbKpi || {}).engagements) + '</tbody></table>' +
+      '<p class="hint" style="margin:10px 0 0">追蹤數：IG ' + (F.ig == null ? '—' : fmt(F.ig)) + (F.igNet28 != null ? '（近 28 天淨增 ' + (F.igNet28 >= 0 ? '+' : '') + fmt(F.igNet28) + '）' : '') +
+      '、FB ' + (F.fb == null ? '—' : fmt(F.fb)) + (F.fbNet28 != null ? '（近 28 天 ' + (F.fbNet28 >= 0 ? '+' : '') + fmt(F.fbNet28) + '）' : '') + '。' +
+      (adsShare != null ? '上週 FB 粉專觀看有 ' + adsShare + '% 來自廣告。' : '') + '</p>';
+    var ig = S.ig || [];
+    $('#socIg').innerHTML = ig.length ? '<table><thead><tr><th>IG 內容</th><th class="num">自然觀看</th><th class="num">÷同類中位</th><th class="num">3秒滑掉率</th><th class="num">平均觀看秒</th><th class="num">儲存</th><th class="num">分享</th></tr></thead><tbody>' +
+      ig.map(function (x) {
+        return '<tr><td><a class="ttl" href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title || '（沒有文字）') + ' ↗</a><div class="sub2">' + esc(x.pub) + '<span class="tag">' + esc(x.type) + '</span></div></td>' +
+          '<td class="num">' + fmt(x.views) + '</td><td class="num">' + light(x.ratio, 0.5, 1.5) + '</td><td class="num">' + (x.skip == null ? '—' : x.skip + '%') + '</td>' +
+          '<td class="num">' + (x.avgSec == null ? '—' : x.avgSec) + '</td><td class="num">' + fmt(x.saved) + '</td><td class="num">' + fmt(x.shares) + '</td></tr>';
+      }).join('') + '</tbody></table>' : '<div class="empty">近 60 天沒有 IG 內容。</div>';
+    var fb = S.fb || [];
+    $('#socFb').innerHTML = fb.length ? '<table><thead><tr><th>FB 貼文</th><th class="num">自然觀看</th><th class="num">÷中位</th><th class="num">廣告觀看</th><th class="num">點擊</th><th class="num">心情</th><th class="num">3秒影片觀看</th></tr></thead><tbody>' +
+      fb.map(function (x) {
+        return '<tr><td><a class="ttl" href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title || '（沒有文字）') + ' ↗</a><div class="sub2">' + esc(x.pub) + '<span class="tag">' + esc(x.type) + '</span></div></td>' +
+          '<td class="num">' + fmt(x.organic) + '</td><td class="num">' + light(x.ratio, 0.5, 1.5) + '</td><td class="num">' + fmt(x.ads) + '</td><td class="num">' + fmt(x.clicks) + '</td>' +
+          '<td class="num">' + fmt(x.reactions) + '</td><td class="num">' + fmt(x.video3s) + '</td></tr>';
+      }).join('') + '</tbody></table>' : '<div class="empty">近 60 天沒有 FB 貼文。</div>';
   }
   /* ---- 廣告投放（鈞播週報） ---- */
   function drawAds(d) {
@@ -1166,6 +1234,7 @@
     '投放中的影片：自然 vs 廣告': FREQ_DAILY,
     '市場題材地圖': '每週一 07:00 自動更新競品的觀看、倍數、評級與熱度。新上架的競品影片要等每月 1 號分好題材，才會算進來。',
     '近 60 天新爆片': '每週一 07:00 自動換新。只列已經分好題材的片，所以每月 1 號分類之後才上架的新片，要等下個月 1 號才會出現。',
+    'IG 與 FB': '每天 07:00 從 Meta 官方 API 自動更新；Meta 的資料最多落後 2 天，而且以美西時間切日。',
     '廣告投放（鈞播週報）': '鈞播通常每週二傍晚寄出週報（偶爾週三、週四），內容到寄出前一天為止。數據中心每天 08:00 檢查信箱，收到新的一期就自動匯入。',
     'Podcast／對談影片地圖': '市場的部分每週一 07:00 跟題材地圖一起更新（新片同樣要等每月 1 號分類）；甘丹自己的兩張表每天 06:00 更新。',
     '影片帶來的諮詢（推估）': '每天 06:00 自動更新，讀「影片來源追蹤」試算表當下的諮詢紀錄。',

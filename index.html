@@ -437,7 +437,9 @@
       '<li>只從研究的 23 個設計／裝修專業頻道挑，不含甘丹自己；觀看數與倍數每週一自動更新。</li></ol></details>' +
       '<div class="scroll" id="topicMap"></div>' +
       '<div class="breakouts"><h3>近 60 天新爆片</h3><p class="hint">專業頻道近 60 天上架、已是該頻道平常 2 倍以上、沒有投流嫌疑、不是業配的片，每週一自動換新（一個頻道最多 2 支）。' +
-      '<b>先看它的題材評級是不是長期強，再決定要不要跟</b>，不要只追上週的爆片。</p><div id="breakouts"></div></div></div>';
+      '<b>先看它的題材評級是不是長期強，再決定要不要跟</b>，不要只追上週的爆片。</p><div id="breakouts"></div></div>' +
+      '<div class="breakouts"><h3>近 60 天新爆 Shorts</h3><p class="hint">專業頻道近 60 天上架的 Shorts（3 分鐘以內），已是該頻道<b>平常 Shorts</b> 的 2 倍以上、沒有投流嫌疑、至少 5,000 觀看。Shorts 不分題材，所以沒有題材標籤；一個頻道最多 2 支、最多 10 支。</p><div id="shortBreakouts"></div></div>' +
+      '<div class="breakouts"><h3>不限時間爆款長片</h3><p class="hint" id="allTimeHint"></p><div id="allTimeHits"></div></div></div>';
     html += '<div class="section card"><div class="chart-head"><div><h2>Podcast／對談影片地圖</h2><p class="hint" id="podHint"></p></div></div>' +
       '<div class="scroll" id="podOverview"></div>' +
       '<h3 class="subh">聊什麼題材</h3><div class="scroll" id="podTopics"></div>' +
@@ -665,6 +667,16 @@
     el.innerHTML = b.length ? exampleCards(b.map(function (v) { return Object.assign({}, v, { form: (v.topic || '') + (v.form ? '・' + v.form : '') }); }))
       : '<div class="empty">目前沒有（每週一競品更新後才會有資料）。</div>';
     el.querySelectorAll('img[data-src]').forEach(function (im) { im.src = im.getAttribute('data-src'); im.removeAttribute('data-src'); });
+    var t = d.topics || {}, sb = t.shortBreakouts || [], at = t.allTime || [];
+    function fill(sel, list, empty) {
+      var box = $(sel); if (!box) return;
+      box.innerHTML = list.length ? exampleCards(list.map(function (v) { return Object.assign({}, v, { form: (v.topic || '') + (v.topic && v.form ? '・' : '') + (v.form || '') }); })) : '<div class="empty">' + empty + '</div>';
+      box.querySelectorAll('img[data-src]').forEach(function (im) { im.src = im.getAttribute('data-src'); im.removeAttribute('data-src'); });
+    }
+    fill('#shortBreakouts', sb, '目前沒有（每週一競品更新後才會有資料）。');
+    fill('#allTimeHits', at, '還沒掃描（每週二 07:00 自動掃）。');
+    if ($('#allTimeHint')) $('#allTimeHint').innerHTML = '專業頻道<b>全部</b>上傳裡，倍數（觀看 ÷ 該頻道所有長片的中位數）最高的 20 支長片：4 分鐘以上、至少 5 萬觀看、沒有投流嫌疑、不是業配，一個頻道最多 2 支。' +
+      '老片累積時間長，倍數會比新片高，<b>看的是「哪些題材能一直被搜、被推」</b>，不是最近的趨勢。題材標籤只有近 12 個月的片才有。' + (t.allTimeDate ? '（最近掃描 ' + esc(t.allTimeDate) + '）' : '');
   }
   /* GLOSS:BEGIN */
   /* 名詞註釋（2026-10-10 Ethan：滑鼠移到名詞上要跳出簡單解釋）。每筆＝[這是什麼, 怎麼看]。test.js 會把這一塊抽出來測，畫面上的欄位都要查得到。 */
@@ -796,6 +808,8 @@
     '長片': ['一般橫式影片（超過 3 分鐘）。', '長片只跟長片比。'],
     'Shorts': ['3 分鐘以內的直式短影音。', '觀看主要來自 Shorts 滑動頁，數字不能跟長片比。'],
     '近 60 天新爆片': ['競品專業頻道近 60 天上架、已經是該頻道平常 2 倍以上的影片。', '已排除疑似投流和業配。先看它的題材評級是不是長期強，再決定要不要跟。'],
+    '近 60 天新爆 Shorts': ['競品專業頻道近 60 天上架、已經是該頻道平常 Shorts 2 倍以上的 Shorts。', 'Shorts 跟 Shorts 比、長片跟長片比；看開頭鉤子和題目怎麼下，可以借給甘丹的 Shorts。'],
+    '不限時間爆款長片': ['競品專業頻道有史以來，相對自己平常表現最好的 20 支長片。', '這些是「長青題材」：做得好可以被搜尋和推薦好幾年。'],
     '未標題材': ['還沒有題材標籤的影片。', '每月 AI 分類會自動補標，也可以到試算表「影片題材」分頁手動填。'],
     '作品開箱': ['形式：設計師或屋主帶看完工的案場、成屋、樣品屋。', '市場上最常見的形式；搭配收納、格局題材表現較好。'],
     '口播知識': ['形式：一位主講人對鏡頭講解知識，可搭配圖卡。', '製作成本低；搭配避雷後悔題材是市場上最好的組合之一。'],
@@ -1237,6 +1251,8 @@
     '投放中的影片：自然 vs 廣告': FREQ_DAILY,
     '市場題材地圖': '每週一 07:00 自動更新競品的觀看、倍數、評級與熱度。新上架的競品影片要等每月 1 號分好題材，才會算進來。',
     '近 60 天新爆片': '每週一 07:00 自動換新。只列已經分好題材的片，所以每月 1 號分類之後才上架的新片，要等下個月 1 號才會出現。',
+    '近 60 天新爆 Shorts': '每週一 07:00 跟競品更新一起換新；Shorts 不分題材，上架滿 7 天就會出現。',
+    '不限時間爆款長片': '每週二 07:00 自動掃描（最久沒掃的頻道先掃，一次約 4 分鐘，掃不完下週接著掃）。',
     'IG 與 FB': '每天 07:00 從 Meta 官方 API 自動更新；Meta 的資料最多落後 2 天，而且以美西時間切日。',
     '廣告投放（鈞播週報）': '鈞播通常每週二傍晚寄出週報（偶爾週三、週四），內容到寄出前一天為止。數據中心每天 08:00 檢查信箱，收到新的一期就自動匯入。',
     'Podcast／對談影片地圖': '市場的部分每週一 07:00 跟題材地圖一起更新（新片同樣要等每月 1 號分類）；甘丹自己的兩張表每天 06:00 更新。',

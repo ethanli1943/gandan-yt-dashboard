@@ -29,6 +29,7 @@
     --good: #0b7a0b;
     --bad: #c23434;
     --accent: #6f8a6a;       /* 鼠尾草綠：只當裝飾，不當資料色 */
+    --p-yt: #ff0033; --p-fb: #0866ff; --p-ig: #8134af;   /* 平台線色（validate_palette.js 全配對通過，2026-10-15） */
     --radius: 18px;
     --font: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
   }
@@ -37,14 +38,14 @@
       color-scheme: dark;
       --page: #121110; --surface: #1c1b19; --card: #201f1c; --ink: #f6f3ee; --ink-2: #cfc9bf; --muted: #9a948a;
       --grid: #2e2c29; --base: #3d3a36; --ring: rgba(255,255,255,0.08); --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
-      --organic: #3987e5; --organic-wash: rgba(57,135,229,0.14); --ads: #d95926; --good: #3cc43c; --bad: #ef7777; --accent: #9db398;
+      --p-yt: #ff3355; --p-fb: #3d8bff; --p-ig: #a464d6; --organic: #3987e5; --organic-wash: rgba(57,135,229,0.14); --ads: #d95926; --good: #3cc43c; --bad: #ef7777; --accent: #9db398;
     }
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
     --page: #121110; --surface: #1c1b19; --card: #201f1c; --ink: #f6f3ee; --ink-2: #cfc9bf; --muted: #9a948a;
     --grid: #2e2c29; --base: #3d3a36; --ring: rgba(255,255,255,0.08); --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
-    --organic: #3987e5; --organic-wash: rgba(57,135,229,0.14); --ads: #d95926; --good: #3cc43c; --bad: #ef7777; --accent: #9db398;
+    --p-yt: #ff3355; --p-fb: #3d8bff; --p-ig: #a464d6; --organic: #3987e5; --organic-wash: rgba(57,135,229,0.14); --ads: #d95926; --good: #3cc43c; --bad: #ef7777; --accent: #9db398;
   }
 
   * { box-sizing: border-box; }
@@ -426,6 +427,8 @@
       return '<button class="tab" role="tab" type="button" data-k="' + t[0] + '" aria-selected="false"><span class="dot" aria-hidden="true"></span>' + t[1] + '</button>'; }).join('') + '</div>';
     html += '<div class="pane" data-pane="home"><div class="section card"><div class="chart-head"><div><h2>數據週報／月報</h2><p class="hint" id="repHint"></p></div>' +
       '<div class="seg" id="repSeg" aria-label="週報或月報"><button class="on" data-k="week">週報</button><button data-k="month">月報</button></div></div><div id="repBody"></div></div>' +
+      '<div class="section card"><div class="chart-head"><div><h2>三個平台走勢</h2><p class="hint" id="homeTrendHint"></p></div>' +
+      '<div class="seg" id="homeTrendSeg" aria-label="顯示方式"><button class="on" data-k="idx">比平常</button><button data-k="raw">原始數字</button></div></div><div id="homeTrend"></div></div>' +
       '<div class="section card"><div class="chart-head"><div><h2>三個平台一覽</h2><p class="hint" id="homeHint"></p></div></div>' +
       '<div id="homeTable"></div></div>' +
       '<div class="section card"><div class="chart-head"><div><h2>同一支片，三個平台</h2><p class="hint" id="crossHint"></p></div></div><div class="scroll" id="cross"></div></div></div>';
@@ -520,7 +523,7 @@
     document.querySelectorAll('[data-pct]').forEach(function (el) { countUp(el, +el.getAttribute('data-pct'), { pct: true }); });
     var st = { t: '全部', w: '28' };
     drawLine(d); drawDayTable(d); drawSources(d); drawCands(d); drawRank(d, st.t, st.w); drawPaid(d);
-    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawBreakouts(d); drawPodcast(d); drawSocial(d); drawAds(d); drawReviews(d); drawConversions(d); drawHome(d); drawCross(d); drawReport(d, 'week'); segClick('#repSeg', 'data-k', function (k) { drawReport(d, k); }); addHelp(); addFreq(); initTabs(d); bindCards('#launch', d); bindCards('#rank', d); initGloss(); annotate();
+    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawBreakouts(d); drawPodcast(d); drawSocial(d); drawAds(d); drawReviews(d); drawConversions(d); drawHome(d); drawCross(d); drawReport(d, 'week'); segClick('#repSeg', 'data-k', function (k) { drawReport(d, k); }); drawHomeTrend(d, 'idx'); segClick('#homeTrendSeg', 'data-k', function (k) { drawHomeTrend(d, k); }); addHelp(); addFreq(); initTabs(d); bindCards('#launch', d); bindCards('#rank', d); initGloss(); annotate();
     function segClick(sel, attr, after) {
       $(sel).addEventListener('click', function (e) {
         var b = e.target.closest('button'); if (!b) return;
@@ -1101,6 +1104,11 @@
       ['跟 Business Suite 對帳', '2026-10-14 挑 3 篇貼文＋近 28 天帳號數字對過：觀看、分享、儲存、3 秒觀看一致；觸及差 1% 內（Meta 估計值）；FB 心情數差 1–2；FB「所有點擊」含點開相片和播放，不等於後台的連結點擊。IG 觸及改用整週不重複人數，才對得上後台。'],
       ['IG 近 60 天內容', 'Reels 跟 Reels 比、貼文跟貼文比；3 秒滑掉率與平均觀看秒只有 Reels 有。'],
       ['限制', '限時動態只保留 24 小時，沒有追；競品的 IG、FB 拿不到後台數字，沒有做。']]),
+    '三個平台走勢': dl([
+      ['比平常', '每週合計 ÷ 圖上這段期間（最多 16 週）的中位數。1＝平常，2＝兩倍，0.5＝一半。'],
+      ['看哪個數字', 'YouTube＝自然觀看（扣廣告）；FB＝粉專自然觀看（扣廣告）；IG＝觀看（IG 貼文數字只算自然）。'],
+      ['原始數字', '切到「原始數字」看每週的實際量，三張小圖各用自己的刻度。'],
+      ['資料起點', 'FB／IG 每日資料從 2026-08-12 開始存，所以最早只到 8 月中；之後每週會多一個點。']]),
     '數據週報／月報': dl([
       ['期間', '週報＝三個平台都有完整資料的最近一週（週一到週日）；月報＝最近一個完整的月。YouTube 資料約晚 3 天，所以週報每週四才換到上一週。'],
       ['變化', '本期 ÷ 上期 − 1。'],
@@ -1207,6 +1215,7 @@
       try { localStorage.setItem('gdc-tab', k); } catch (e) {}
       if (!first && history.replaceState) history.replaceState(null, '', '#' + k);
       if (k === 'yt') drawLine(d);   // 隱藏時量不到寬度，切回來重畫
+      if (k === 'home') drawHomeTrend(d, ($('#homeTrendSeg .on') || { getAttribute: function () { return 'idx'; } }).getAttribute('data-k'));
       if ((k === 'fb' || k === 'ig') && window.__socRedraw) window.__socRedraw();
     }
   }
@@ -1323,11 +1332,12 @@
     }).join('') : '<div class="empty">目前沒有符合條件的貼文。</div>';
   }
   /* ---- 走勢小圖（FB／IG 共用；單一刻度、最多兩條線，滑過看每天數字） ---- */
-  function drawTrend(sel, rows, series) {
+  function drawTrend(sel, rows, series, opts) {
+    opts = opts || {}; var vf = opts.val || function (v) { return fmt(v || 0); };
     var box = $(sel); if (!box) return;
     if (!rows.length) { box.innerHTML = '<div class="empty">還沒有每日資料。</div>'; return; }
-    var W = box.clientWidth || 900, Hh = Math.max(180, Math.min(260, W * 0.28)), L = 48, R = 18, T = 12, B = 28;
-    var max = Math.max.apply(null, rows.map(function (r) { return Math.max.apply(null, series.map(function (s) { return r[s.k] || 0; })); })) || 1;
+    var W = box.clientWidth || 900, Hh = opts.h || Math.max(180, Math.min(260, W * 0.28)), L = 48, R = opts.endLabels ? 92 : 18, T = 12, B = 28;
+    var max = Math.max.apply(null, rows.map(function (r) { return Math.max.apply(null, series.map(function (s) { return r[s.k] || 0; })); }).concat([opts.ref || 0])) || 1;
     var step = Math.pow(10, Math.floor(Math.log10(max))), nice = Math.ceil(max / step) * step;
     if (nice / step < 3) { step = step / 2; } nice = Math.ceil(max / step) * step;
     var x = function (i) { return L + (W - L - R) * (rows.length === 1 ? .5 : i / (rows.length - 1)); };
@@ -1339,8 +1349,15 @@
     }
     var every = Math.ceil(rows.length / Math.max(3, Math.floor((W - L - R) / 70)));
     rows.forEach(function (p, i) { if (i % every === 0 || i === rows.length - 1) g += '<text x="' + x(i) + '" y="' + (Hh - 8) + '" text-anchor="middle">' + (+p.d.slice(5, 7)) + '/' + (+p.d.slice(8)) + '</text>'; });
+    if (opts.ref != null) g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(opts.ref) + '" y2="' + y(opts.ref) + '" stroke="var(--base)" stroke-dasharray="4 4"/>' +
+      '<text x="' + (L + 6) + '" y="' + (y(opts.ref) + 14) + '" text-anchor="start">平常＝1</text>';
     var paths = series.map(function (s) {
-      return '<path class="series" d="' + rows.map(function (p, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(p[s.k]).toFixed(1); }).join(' ') + '" stroke="' + s.color + '"/>';
+      var dd = '', pen = false;   // 沒資料的週斷開，不要畫成 0
+      rows.forEach(function (p, i) { if (p[s.k] == null) { pen = false; return; } dd += (pen ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(p[s.k]).toFixed(1) + ' '; pen = true; });
+      var pts = rows.map(function (p, i) { return p[s.k] == null ? '' : '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(p[s.k]).toFixed(1) + '" r="2.5" fill="' + s.color + '"/>'; }).join('');
+      var lastI = -1; rows.forEach(function (p, i) { if (p[s.k] != null) lastI = i; });
+      var lab = opts.endLabels && lastI >= 0 ? '<text class="endlabel" style="opacity:1;animation:none" x="' + (x(lastI) + 8) + '" y="' + (y(rows[lastI][s.k]) + 4) + '">' + (s.short || s.label) + ' ' + vf(rows[lastI][s.k]) + '</text>' : '';
+      return '<path class="series" d="' + dd + '" stroke="' + s.color + '"/>' + (opts.dots ? pts : '') + lab;
     }).join('');
     var dots = series.map(function (s, j) { return '<circle class="dot" data-j="' + j + '" r="5" fill="' + s.color + '"/>'; }).join('');
     var legend = series.length > 1 ? '<div class="legend" style="margin-bottom:6px">' + series.map(function (s) { return '<span style="--c:' + s.color + '">' + s.label + '</span>'; }).join('') + '</div>' : '';
@@ -1352,14 +1369,35 @@
       var r = svg.getBoundingClientRect(), sx = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left, scale = W / r.width;
       var i = Math.max(0, Math.min(rows.length - 1, Math.round((sx * scale - L) / ((W - L - R) / Math.max(1, rows.length - 1))))), p = rows[i], cx = x(i);
       ch.setAttribute('x1', cx); ch.setAttribute('x2', cx); ch.style.opacity = 1;
-      box.querySelectorAll('.dot').forEach(function (dt) { var s = series[+dt.getAttribute('data-j')]; dt.setAttribute('cx', cx); dt.setAttribute('cy', y(p[s.k])); dt.style.opacity = 1; });
-      tip.innerHTML = '<b>' + p.d + '</b>' + series.map(function (s) { return '<br><i style="background:' + s.color + '"></i>' + s.label + ' ' + fmt(p[s.k] || 0); }).join('');
-      var top = Math.min.apply(null, series.map(function (s) { return y(p[s.k]); }));
+      box.querySelectorAll('.dot').forEach(function (dt) { var s = series[+dt.getAttribute('data-j')]; dt.setAttribute('cx', cx); dt.setAttribute('cy', y(p[s.k])); dt.style.opacity = p[s.k] == null ? 0 : 1; });
+      tip.innerHTML = '<b>' + (opts.tipDay ? opts.tipDay(p) : p.d) + '</b>' + series.map(function (s) { return '<br><i style="background:' + s.color + '"></i>' + s.label + ' ' + (p[s.k] == null ? '—' : vf(p[s.k])) + (opts.tipExtra ? opts.tipExtra(p, s) : ''); }).join('');
+      var top = Math.min.apply(null, series.filter(function (s) { return p[s.k] != null; }).map(function (s) { return y(p[s.k]); }).concat([Hh - B]));
       tip.style.left = (cx / scale + svg.offsetLeft) + 'px'; tip.style.top = (top / scale + svg.offsetTop) + 'px'; tip.style.opacity = 1;
     }
     function leave() { ch.style.opacity = 0; tip.style.opacity = 0; box.querySelectorAll('.dot').forEach(function (dt) { dt.style.opacity = 0; }); }
     hit.addEventListener('mousemove', move); hit.addEventListener('touchmove', move, { passive: true });
     hit.addEventListener('mouseleave', leave); hit.addEventListener('touchend', leave);
+  }
+  /* ---- 總覽：三個平台走勢（2026-10-15 Ethan：總覽要有趨勢圖；選「同一張看比平常」） ---- */
+  function drawHomeTrend(d, mode) {
+    var T = (d.report || {}).trend || { rows: [], base: {} }, rows = T.rows || [], B = T.base || {};
+    if (!$('#homeTrend')) return;
+    var wk = function (p) { return p.d.slice(5).replace('-', '/') + ' 那週'; };
+    var S = [{ k: 'yt', label: 'YouTube 自然觀看', short: 'YouTube', color: 'var(--p-yt)' }, { k: 'fb', label: 'FB 粉專自然觀看', short: 'FB', color: 'var(--p-fb)' },
+      { k: 'ig', label: 'IG 觀看', short: 'IG', color: 'var(--p-ig)' }];
+    if (mode === 'raw') {
+      $('#homeTrendHint').innerHTML = '每週合計的原始數字，三個平台各用自己的刻度（算法不同，不要互相比大小）。';
+      $('#homeTrend').innerHTML = S.map(function (s) { return '<h3 class="subh" style="margin:14px 0 4px"><span class="pdot ' + s.k + '" aria-hidden="true"></span>' + s.label + '</h3><div class="line-wrap" id="homeTrend_' + s.k + '"></div>'; }).join('');
+      S.forEach(function (s) {
+        drawTrend('#homeTrend_' + s.k, rows, [{ k: s.k + 'Raw', label: s.label, color: s.color }], { h: 170, dots: true, tipDay: wk });
+      });
+      return;
+    }
+    $('#homeTrendHint').innerHTML = '每週一個點：<b>這週 ÷ 這段期間的中位數</b>，虛線 1＝跟平常一樣，0.5＝只有平常的一半。三個平台的觀看算法不同，換成「比平常」才能放在一起看走勢。' +
+      '平常＝YouTube ' + (B.yt ? fmt(Math.round(B.yt)) : '—') + '、FB ' + (B.fb ? fmt(Math.round(B.fb)) : '—') + '、IG ' + (B.ig ? fmt(Math.round(B.ig)) : '—') + '（每週）。YouTube 資料約晚 3 天，所以最後一個點會比 FB／IG 早一週。';
+    $('#homeTrend').innerHTML = '<div class="line-wrap" id="homeTrendIdx"></div>';
+    drawTrend('#homeTrendIdx', rows, S, { ref: 1, dots: true, endLabels: true, val: function (v) { return v.toFixed(2); }, tipDay: wk,
+      tipExtra: function (p, s) { var r = p[s.k + 'Raw']; return r == null ? '' : '（' + fmt(r) + '）'; } });
   }
   /* ---- 數據週報／月報（2026-10-15） ---- */
   function mdLite(text) {   // Claude 寫的分析：只支援段落、「- 」清單、「### 」小標、**粗體**
@@ -1553,6 +1591,7 @@
     '三個平台一覽': '每天自動更新：YouTube 06:00、FB／IG 07:00（各自落後 2–3 天）。',
     '同一支片，三個平台': '每天自動更新：YouTube 06:00、FB／IG 07:00。',
     '數據週報／月報': '數字每天自動更新；文字分析每週四 09:00、每月 4 日 09:30 由 Claude 撰寫。',
+    '三個平台走勢': '每天自動更新：YouTube 06:00、FB／IG 07:00；只畫完整的週（週一到週日）。',
     'Facebook 粉專': '每天 07:00 從 Meta 官方 API 自動更新；Meta 的資料最多落後 2 天，而且以美西時間切日。',
     'Instagram': '每天 07:00 從 Meta 官方 API 自動更新；Meta 的資料最多落後 2 天，而且以美西時間切日。',
     '廣告投放（鈞播週報）': '鈞播通常每週二傍晚寄出週報（偶爾週三、週四），內容到寄出前一天為止。數據中心每天 08:00 檢查信箱，收到新的一期就自動匯入。',
@@ -1597,7 +1636,7 @@
       : '<div class="empty">近 28 天沒有影片有廣告觀看。</div>';
     grow('#paid .stack i');
   }
-  var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { if (window.__DATA__) drawLine(window.__DATA__); if (window.__socRedraw) window.__socRedraw(); }, 150); });
+  var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { if (window.__DATA__) { drawLine(window.__DATA__); drawHomeTrend(window.__DATA__, ($('#homeTrendSeg .on') || { getAttribute: function () { return 'idx'; } }).getAttribute('data-k')); } if (window.__socRedraw) window.__socRedraw(); }, 150); });
 
   function fail(e) { $('#app').innerHTML = '<div class="err">讀不到資料：' + esc(e && e.message ? e.message : e) + '。請稍後重新整理；若持續發生，請告訴 Ethan。</div>'; }
   if (window.google && google.script && google.script.run) {

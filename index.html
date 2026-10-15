@@ -773,11 +773,13 @@
     'FB 貼文': ['FB 粉專的貼文，點標題會開 FB。', '下面小字是發布日（台灣時間）與類型。'],
     '÷中位': ['這篇的自然觀看 ÷ 近 60 天 FB 貼文自然觀看的中位數。', '1＝跟平常一樣。'],
     '點擊': ['貼文任何地方被點的次數。', '點擊多代表內容讓人想看更多。'],
-    '指標': ['這一列看的是什麼數字。', '各平台的「觀看」算法不同，只跟同一列的上期、平常比。'],
-    '本期': ['這一週（或這個月）的合計。', ''],
-    '上期': ['上一週（或上個月）的合計。', ''],
-    '變化': ['本期比上期多或少幾 %。', '單週起伏很大，連續幾週同方向才算趨勢。'],
-    '比平常': ['本期 ÷ 前 8 週（月報：前 6 個月）的中位數。1＝跟平常一樣。', '≥1.2 綠燈、<0.8 紅燈；廣告類不打燈。'],
+    '指標': ['這一列看的是什麼數字。', '各平台的「觀看」算法不同，只跟同一列的上週（上月）、平常比。'],
+    '本週': ['週報的這一週（週一到週日）合計；是三個平台都有完整資料的最近一週，日期寫在表格上方。', ''],
+    '上週': ['「本週」的前一週（週一到週日）合計。', ''],
+    '本月': ['月報的這個月合計；是最近一個完整的月，月份寫在表格上方。', ''],
+    '上月': ['「本月」的前一個月合計。', ''],
+    '變化': ['本週比上週（月報：本月比上月）多或少幾 %。', '單週起伏很大，連續幾週同方向才算趨勢。'],
+    '比平常': ['本週 ÷ 前 8 週的中位數（月報：本月 ÷ 前 6 個月的中位數）。1＝跟平常一樣。', '≥1.2 綠燈、<0.8 紅燈；廣告類不打燈。'],
     'IG 主頁瀏覽': ['有幾次有人點進甘丹的 IG 主頁。', '看完內容想多認識甘丹的第一步；觀看 → 主頁瀏覽 → 官網點擊，是 IG 的漏斗。'],
     'IG 官網連結點擊': ['有幾次有人點了 IG 簡介裡的官網連結（目前是 www.gandandesign.com.tw 首頁）。', 'IG 最接近「想進一步了解」的動作。數字小（近 28 天約 50 次），看走勢比看單週準。'],
     'IG 新追蹤': ['這段期間新增的追蹤者人數。', '比觀看更能代表「想持續看甘丹」。'],
@@ -1111,8 +1113,10 @@
       ['資料起點', 'FB／IG 每日資料從 2026-08-12 開始存，所以最早只到 8 月中；之後每週會多一個點。']]),
     '數據週報／月報': dl([
       ['期間', '週報＝三個平台都有完整資料的最近一週（週一到週日）；月報＝最近一個完整的月。YouTube 資料約晚 3 天，所以週報每週四才換到上一週。'],
-      ['變化', '本期 ÷ 上期 − 1。'],
-      ['比平常', '本期 ÷ 前 8 週（月報：前 6 個月）完整期間的中位數；≥1.2 綠燈、<0.8 紅燈。廣告類是買來的量，只列數字不打燈。'],
+      ['本週／上週', '週報：本週＝三個平台都有完整資料的最近一週（週一到週日），上週＝它的前一週。'],
+      ['本月／上月', '月報：本月＝最近一個完整的月，上月＝它的前一個月。'],
+      ['變化', '週報：本週 ÷ 上週 − 1；月報：本月 ÷ 上月 − 1。'],
+      ['比平常', '週報：本週 ÷ 前 8 週的中位數；月報：本月 ÷ 前 6 個月的中位數。≥1.2 綠燈、<0.8 紅燈。廣告類是買來的量，只列數字不打燈。'],
       ['廣告（鈞播）', '鈞播週報的 YouTube 花費與觀看、FB 花費與表單名單。週報通常週二傍晚寄到，還沒寄到的那幾天不完整就不列。'],
       ['諮詢', '影片來源追蹤試算表的官網諮詢單數（只有月份）；成交欄目前沒人勾，算不出成交。FB 廣告的表單名單不在這裡。'],
       ['文字分析', 'Claude 每週四 09:00、每月 4 日 09:30 讀這裡的數字自動寫（電腦要開著 Claude）。只根據數字，推論會標明是推論。']]),
@@ -1419,7 +1423,13 @@
       '「平常」＝前 8 週（月報：前 6 個月）的中位數。廣告類是買來的量，不打燈號。';
     if (R.empty) { $('#repBody').innerHTML = '<div class="empty">還沒有資料。</div>'; return; }
     var X = R[kind] || {}, P = { yt: 'YouTube', fb: 'Facebook', ig: 'Instagram', ads: '廣告（鈞播）', lead: '諮詢' };
-    var label = kind === 'week' ? (X.start ? X.start.slice(5).replace('-', '/') + '–' + X.end.slice(5).replace('-', '/') : '') : (X.period ? X.period.slice(0, 4) + ' 年 ' + (+X.period.slice(5)) + ' 月' : '');
+    var md = function (s) { return s ? s.slice(5).replace('-', '/') : ''; }, ymLabel = function (m) { return m ? m.slice(0, 4) + ' 年 ' + (+m.slice(5)) + ' 月' : ''; };
+    var prevMonth = function (m) { if (!m) return ''; var y = +m.slice(0, 4), mo = +m.slice(5) - 1; if (mo < 1) { mo = 12; y--; } return y + '-' + ('0' + mo).slice(-2); };
+    var label = kind === 'week' ? (X.start ? md(X.start) + '–' + md(X.end) : '') : ymLabel(X.period);
+    var CUR = kind === 'week' ? '本週' : '本月', PREV = kind === 'week' ? '上週' : '上月';
+    var prevLabel = kind === 'week' ? (X.start ? md(addDaysC(X.start, -7)) + '–' + md(addDaysC(X.start, -1)) : '') : ymLabel(prevMonth(X.period));
+    var defLine = '<p class="hint" style="margin:0 0 10px"><b>' + CUR + '</b>＝' + esc(label) + (kind === 'week' ? '（週一到週日）' : '') + '；<b>' + PREV + '</b>＝' + esc(prevLabel) +
+      '；<b>平常</b>＝' + (kind === 'week' ? '前 8 週' : '前 6 個月') + '的中位數。' + (kind === 'week' ? '「本週」是三個平台都有完整資料的最近一週，不是今天所在的這一週。' : '「本月」是最近一個完整的月，不是今天所在的月份。') + '</p>';
     var A = X.analysis, an;
     if (A && A.current) an = '<div class="note analysis">' + mdLite(A.text) + '<p class="sub2" style="margin-top:8px">Claude 分析，' + esc(A.time) + ' 寫</p></div>';
     else an = '<div class="note">這一期的文字分析還沒寫（' + (kind === 'week' ? '每週四' : '每月 4 日') + '自動產生）。' +
@@ -1430,7 +1440,7 @@
       return '<span class="chg">' + (pct > 0 ? '▲ ' : pct < 0 ? '▼ ' : '') + Math.abs(pct) + '%</span>';
     }
     var order = ['yt', 'fb', 'ig', 'ads', 'lead'], rows = (X.rows || []).slice().sort(function (a, b) { return order.indexOf(a.p) - order.indexOf(b.p); });
-    var table = '<table><thead><tr><th>平台</th><th>指標</th><th class="num">本期</th><th class="num">上期</th><th class="num">變化</th><th class="num">比平常</th></tr></thead><tbody>' +
+    var table = '<table><thead><tr><th>平台</th><th>指標</th><th class="num">' + CUR + '</th><th class="num">' + PREV + '</th><th class="num">變化</th><th class="num">比平常</th></tr></thead><tbody>' +
       rows.map(function (r, i) {
         var first = !i || rows[i - 1].p !== r.p;
         return '<tr><td>' + (first ? (r.p === 'yt' || r.p === 'fb' || r.p === 'ig' ? '<span class="pdot ' + r.p + '" aria-hidden="true"></span>' : '') + '<b style="font-weight:500">' + P[r.p] + '</b>' : '') + '</td>' +
@@ -1440,7 +1450,7 @@
     var extra = '';
     if (kind === 'week') {
       var T = X.top || {};
-      extra = '<h3 class="subh">這一週發的內容</h3><div class="toplist">' + ['yt', 'fb', 'ig'].map(function (k) {
+      extra = '<h3 class="subh">本週發的內容（' + esc(label) + '）</h3><div class="toplist">' + ['yt', 'fb', 'ig'].map(function (k) {
         var L = T[k] || [];
         return '<div class="hcard"><div class="hhead"><span class="pdot ' + k + '" aria-hidden="true"></span><b>' + P[k] + '</b></div>' + (L.length ? L.map(function (x) {
           return '<div class="ti"><a href="' + esc(x.url || '') + '" target="_blank" rel="noopener">' + esc((x.title || '（沒有文字）').slice(0, 30)) + ' ↗</a><div class="sub2">' + esc(x.pub) + ' · ' + esc(x.type || '') +
@@ -1452,7 +1462,7 @@
       extra = '<p class="hint" style="margin:12px 0 0">' + (C ? '官網諮詢單 ' + C.count + ' 筆（客戶自述 YouTube 約 ' + C.yt + '、Facebook 約 ' + C.fb + '、Instagram 約 ' + C.ig + '；可複選）。' : '這個月沒有諮詢資料。') +
         esc(R.deals || '') + '。FB 廣告的表單名單不在官網諮詢單裡，只有鈞播報表的筆數。</p>';
     }
-    $('#repBody').innerHTML = '<p style="margin:2px 0 10px;font-weight:600">' + (kind === 'week' ? '週報 ' : '月報 ') + esc(label) + '</p>' + an + '<div class="scroll" style="margin-top:12px">' + table + '</div>' + extra;
+    $('#repBody').innerHTML = '<p style="margin:2px 0 4px;font-weight:600">' + (kind === 'week' ? '週報 ' : '月報 ') + esc(label) + '</p>' + defLine + an + '<div class="scroll" style="margin-top:12px">' + table + '</div>' + extra;
   }
   /* ---- 同一支片，三個平台 ---- */
   function drawCross(d) {

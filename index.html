@@ -257,6 +257,8 @@
   .subh { font-size: 15px; margin: 24px 0 8px; }
   .subrow { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; margin: 24px 0 8px; }
   .subrow .subh { margin: 0; }
+  .freq-at { display: block; margin-top: 2px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .freq-at.stale-at { color: var(--bad); font-weight: 600; }
   .alert { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 12px; align-items: start; padding: 10px 14px; border-radius: 12px; background: var(--surface); box-shadow: 0 0 0 1px var(--ring); margin-top: 8px; }
   .alert .lv { font-size: 12px; font-weight: 700; white-space: nowrap; padding-top: 1px; }
   .alert.red .lv { color: var(--bad); } .alert.orange .lv { color: var(--warn); }
@@ -532,7 +534,7 @@
     document.querySelectorAll('[data-pct]').forEach(function (el) { countUp(el, +el.getAttribute('data-pct'), { pct: true }); });
     var st = { t: '全部', w: '28' };
     drawLine(d); drawDayTable(d); drawSources(d); drawCands(d); drawRank(d, st.t, st.w); drawPaid(d);
-    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawBreakouts(d); drawPodcast(d); drawSocial(d); drawAds(d); drawReviews(d); drawConversions(d); drawHome(d); drawAlerts(d); drawLeads(d); drawCases(d); drawCross(d); drawReport(d, 'week'); segClick('#repSeg', 'data-k', function (k) { drawReport(d, k); }); drawHomeTrend(d, 'idx'); segClick('#homeTrendSeg', 'data-k', function (k) { drawHomeTrend(d, k); }); addHelp(); addFreq(); initTabs(d); bindCards('#launch', d); bindCards('#rank', d); initGloss(); annotate();
+    drawLaunch(d, 'long'); drawTopics(d, 'topics'); drawBreakouts(d); drawPodcast(d); drawSocial(d); drawAds(d); drawReviews(d); drawConversions(d); drawHome(d); drawAlerts(d); drawLeads(d); drawCases(d); drawCross(d); drawReport(d, 'week'); segClick('#repSeg', 'data-k', function (k) { drawReport(d, k); }); drawHomeTrend(d, 'idx'); segClick('#homeTrendSeg', 'data-k', function (k) { drawHomeTrend(d, k); }); addHelp(); addFreq(d); initTabs(d); bindCards('#launch', d); bindCards('#rank', d); initGloss(); annotate();
     function segClick(sel, attr, after) {
       $(sel).addEventListener('click', function (e) {
         var b = e.target.closest('button'); if (!b) return;
@@ -1685,16 +1687,38 @@
     '審片 vs 實際': '每天 06:00 自動更新；拍前分數要人工填進試算表「審片紀錄」分頁。'
   };
   /* FREQ:END */
-  function addFreq() {
-    function make(text) { var p = document.createElement('p'); p.className = 'freq'; p.innerHTML = '<b>更新頻率</b>' + esc(text); return p; }
+  /* 每個區塊的「最後更新」：用各自的排程實際跑完的時間（2026-10-19 Ethan：寫上最新更新日期，才知道有沒有更新） */
+  function freqStamp(d, key) {
+    var S = d.social || {}, st = S.status || {}, A = d.ads || {}, AL = A.last || {}, T = d.topics || {}, R = d.report || {}, th = S.through || {};
+    var yt = { at: d.lastRun, thru: d.through, max: 2 };
+    var latest = function (a, b) { return String(a || '') > String(b || '') ? a : b; };
+    var both = { at: latest(d.lastRun, st.last), thru: 'YouTube ' + (d.through || '—') + '、FB／IG ' + (th.fb || '—'), max: 2 };
+    var M = {
+      '__kpi': yt, '新片檢查': yt, '每天觀看：自然 vs 廣告': yt, '自然流量從哪裡來': yt, '投流候選': yt, '自然表現排行': yt, '投放中的影片：自然 vs 廣告': yt,
+      '影片帶來的諮詢（推估）': yt, '審片 vs 實際': yt, '名單與成交': { at: d.lastRun, max: 2 },
+      'Facebook 粉專': { at: st.last, thru: th.fb, max: 2 }, 'Instagram': { at: st.last, thru: th.ig, max: 2 },
+      '廣告投放（鈞播週報）': { at: AL.okTime || AL.time, thru: (A.cur || {}).through, max: 10 },
+      '市場題材地圖': { at: T.date, max: 8 }, '近 60 天新爆片': { at: T.date, max: 8 }, '近 60 天新爆 Shorts': { at: T.date, max: 8 }, 'Podcast／對談影片地圖': { at: T.date, max: 8 },
+      '不限時間爆款長片': { at: T.allTimeDate, max: 9 },
+      '需要注意': both, '一眼看': both, '同一支片，三個平台': both, '三個平台走勢': both,
+      '數據週報／月報': { at: both.at, thru: both.thru, max: 2, note: ((R.week || {}).analysis || {}).time ? '週報文字 ' + R.week.analysis.time + ' 寫' : '' }
+    };
+    var x = M[key]; if (!x || !x.at) return '';
+    var at = String(x.at), t = Date.parse(at.replace(' ', 'T') + (at.length <= 10 ? 'T00:00:00' : '') + '+08:00');
+    var days = isNaN(t) ? null : (Date.now() - t) / 86400000, stale = days != null && days > x.max;
+    return '<span class="freq-at' + (stale ? ' stale-at' : '') + '">' + (stale ? '⚠ ' : '') + '最後更新 ' + esc(at) + (x.thru ? '（資料到 ' + esc(String(x.thru)) + '）' : '') +
+      (x.note ? '・' + esc(x.note) : '') + (stale ? '・超過預期沒更新' : '') + '</span>';
+  }
+  function addFreq(d) {
+    function make(text, key) { var p = document.createElement('p'); p.className = 'freq'; p.innerHTML = '<b>更新頻率</b>' + esc(text) + (d ? freqStamp(d, key) : ''); return p; }
     document.querySelectorAll('.card h2, .breakouts h3').forEach(function (h) {
-      var text = FREQ[h.textContent.trim()];
+      var key = h.textContent.trim(), text = FREQ[key];
       if (!text || h.parentNode.querySelector(':scope > p.freq')) return;
       var hint = h.parentNode.querySelector(':scope > p.hint'), at = hint || h;
-      at.parentNode.insertBefore(make(text), at.nextSibling);
+      at.parentNode.insertBefore(make(text, key), at.nextSibling);
     });
     var hero = document.querySelector('.g-hero');
-    if (hero && !(hero.nextElementSibling && hero.nextElementSibling.classList.contains('freq'))) hero.parentNode.insertBefore(make(FREQ.__kpi), hero.nextSibling);
+    if (hero && !(hero.nextElementSibling && hero.nextElementSibling.classList.contains('freq'))) hero.parentNode.insertBefore(make(FREQ.__kpi, '__kpi'), hero.nextSibling);
   }
   function drawReviews(d) {
     var rv = d.reviews || { list: [], summary: { judged: 0, correct: 0 } }, list = rv.list || [];
